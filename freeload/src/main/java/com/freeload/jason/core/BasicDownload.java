@@ -16,6 +16,7 @@ public class BasicDownload implements Network {
 
     /** connect to get downloadfile head timeout count. */
     private final static int CONNECT_TIMEOUT = 5 * 1000;
+    private final static int CONTAINER_SIZE = 2048;
 
     @Override
     public void performRequest(Request<?> request) {
@@ -81,7 +82,7 @@ public class BasicDownload implements Network {
 
     private void transferData(Request<?> request, ResponseDelivery delivery, long downloadLength, HttpURLConnection http) throws IOException {
         InputStream inStream = null;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[CONTAINER_SIZE];
 
         int offset = 0;
         long startPos = request.getWriteFileStart();
@@ -93,7 +94,7 @@ public class BasicDownload implements Network {
         inStream = http.getInputStream();
 
         while (true) {
-            offset = inStream.read(buffer, 0, 1024);
+            offset = inStream.read(buffer, 0, CONTAINER_SIZE);
             if (offset == -1) {
                 postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD);
                 break;

@@ -6,22 +6,22 @@ import java.util.ArrayList;
 public class DownloadReceipt implements Serializable {
 
     public static enum STATE {
-		NONE, // 0
-        GETSIZE, // 1
-        FAILED_GETSIZE, // 2
-        CREATEFILE, // 3
-        FAILED_CREATEFILE, // 4
-        QUEST_PREPARE, // 5
-        FAILED_QUEST_PREPARE, // 6
-		START, // 7
-		DOWNLOAD, // 8
-        CANCEL, // 9
-		SUCCESS_DOWNLOAD, // 10
-        START_COMBIN_FILE, // 11
-        SUCCESS_COMBIN_FILE, // 12
-		FAILED, // 13
-		TIMEOUT, // 14
-        CONNWRONG // 15
+		NONE,                   // 0
+        GETSIZE,                // 1
+        FAILED_GETSIZE,         // 2
+        CREATEFILE,             // 3
+        FAILED_CREATEFILE,      // 4
+        QUEST_PREPARE,          // 5
+        FAILED_QUEST_PREPARE,   // 6
+		START,                  // 7
+		DOWNLOAD,               // 8
+        CANCEL,                 // 9
+		SUCCESS_DOWNLOAD,       // 10
+        START_COMBIN_FILE,      // 11
+        SUCCESS_COMBIN_FILE,    // 12
+		FAILED,                 // 13
+		TIMEOUT,                // 14
+        CONNWRONG               // 15
 	}
 
     private int mPosition = 0;
@@ -102,7 +102,7 @@ public class DownloadReceipt implements Serializable {
     public String toString() {
         String str = "";
 
-        str += "downloadSize" + mPosition + ":" + mListDownloadSize.get(0) +
+        str += "downloadSize[" + mPosition + "]:" + mListDownloadSize.get(0) +
                 ",downloadTotalSize" + mPosition + ":" + mListDownloadTotalSize.get(0) +
                 ",downloadState:" + mListState + ";";
         return str;

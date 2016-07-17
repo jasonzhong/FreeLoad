@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 public class DownloadRequestManager {
     /** Unique id for download. */
-    private final int mId;
+    private int mId;
 
     /** URL of this request. */
-    private final String mUrl;
+    private String mUrl;
 
     /** download file receipt */
     private EscapeReceipt mCustomerReceipt = null;
@@ -31,14 +31,11 @@ public class DownloadRequestManager {
     private Response.Listener<IReceipt> mListener = null;
     private ArrayList<DownloadRequest> mDownloadRequestList = null;
 
-    public static DownloadRequestManager create(int id, String Url) {
-        return new DownloadRequestManager(id, Url);
+    public static DownloadRequestManager create() {
+        return new DownloadRequestManager();
     }
 
-    protected DownloadRequestManager(int id, String Url) {
-        this.mId = id;
-        this.mUrl = Url;
-
+    protected DownloadRequestManager() {
         mEscapeReceipt = new EscapeReceipt();
         mCustomerReceipt = new EscapeReceipt();
         mDownloadRequestList = new ArrayList<DownloadRequest>();
@@ -46,6 +43,16 @@ public class DownloadRequestManager {
 
     public DownloadRequestManager setListener(Response.Listener<EscapeReceipt> listener) {
         this.mListener = listener;
+        return this;
+    }
+
+    public DownloadRequestManager setDownloadId(int id) {
+        this.mId = id;
+        return this;
+    }
+
+    public DownloadRequestManager setDownloadUrl(String Url) {
+        this.mUrl = Url;
         return this;
     }
 
@@ -71,18 +78,16 @@ public class DownloadRequestManager {
         int ThreadSize = 1;
         switch (this.mThreadType) {
             case DownloadThreadType.NORMAL:
-                addRequestQueue(1);
                 ThreadSize = 1;
                 break;
             case DownloadThreadType.DOUBLETHREAD:
-                addRequestQueue(2);
                 ThreadSize = 2;
                 break;
             default:
                 ThreadSize = 1;
-                addRequestQueue(1);
                 break;
         }
+        addRequestQueue(ThreadSize);
 
         for (DownloadRequest downloadRequest : mDownloadRequestList) {
             mRequestQueue.addOpening(downloadRequest);

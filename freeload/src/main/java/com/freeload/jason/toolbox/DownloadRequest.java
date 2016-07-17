@@ -1,5 +1,7 @@
 package com.freeload.jason.toolbox;
 
+import android.text.TextUtils;
+
 import com.freeload.jason.core.Request;
 import com.freeload.jason.core.Response;
 
@@ -20,7 +22,7 @@ public class DownloadRequest extends Request<DownloadReceipt> {
     }
 
     public DownloadRequest setDownloadFileName(String fileName) {
-        if (!"".equals(fileName)) {
+        if (!TextUtils.isEmpty(fileName)) {
             setFileName(fileName);
         }
         return this;
