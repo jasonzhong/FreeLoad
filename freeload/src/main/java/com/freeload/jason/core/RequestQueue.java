@@ -41,7 +41,7 @@ public class RequestQueue {
     /** Response delivery mechanism. */
     private final ResponseDelivery mDelivery;
 
-    /** Ending download perform */
+    /** IEnding download perform */
     private final EndingDownload mEnding;
 
     public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload) {

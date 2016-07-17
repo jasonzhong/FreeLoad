@@ -1,6 +1,6 @@
 package com.freeload.jason.core;
 
-public interface Network {
+public interface INetwork {
 
     public void performRequest(Request<?> request);
 

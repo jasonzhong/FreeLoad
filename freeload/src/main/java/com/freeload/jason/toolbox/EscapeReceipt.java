@@ -1,10 +1,11 @@
 package com.freeload.jason.toolbox;
 
 import java.io.Serializable;
+import java.lang.Override;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EscapeReceipt implements Serializable {
+public class EscapeReceipt implements Serializable, IReceipt {
 
     private ArrayList<DownloadReceipt> mListReceipt;
 
@@ -105,5 +106,10 @@ public class EscapeReceipt implements Serializable {
                     ",downloadState:" + mListReceipt.get(i).getDownloadState() + ";";
         }
         return str;
+    }
+
+    @Override
+    public String getReceipt() {
+        return toString();
     }
 }

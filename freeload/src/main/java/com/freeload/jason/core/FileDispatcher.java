@@ -8,7 +8,7 @@ public class FileDispatcher  extends Thread {
 
     private boolean finish = false;
 
-    /** Ending download perform */
+    /** IEnding download perform */
     private final EndingDownload mEnding;
 
     /** The queue of requests to service. */

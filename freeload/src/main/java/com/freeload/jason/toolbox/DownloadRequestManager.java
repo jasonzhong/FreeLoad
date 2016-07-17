@@ -28,8 +28,8 @@ public class DownloadRequestManager {
     private int mSuccessCount = 0;
     private RequestQueue mRequestQueue = null;
 
-    private Response.Listener<EscapeReceipt> mListener;
-    private ArrayList<DownloadRequest> mDownloadRequestList;
+    private Response.Listener<IReceipt> mListener = null;
+    private ArrayList<DownloadRequest> mDownloadRequestList = null;
 
     public static DownloadRequestManager create(int id, String Url) {
         return new DownloadRequestManager(id, Url);
@@ -115,11 +115,12 @@ public class DownloadRequestManager {
                         if (response.getDownloadState() == DownloadReceipt.STATE.SUCCESS_DOWNLOAD) {
                             ++mSuccessCount;
                         }
+                        mEscapeReceipt.setDownloadReceipt(response);
+                        mListener.onProgressChange(mEscapeReceipt);
+
                         if (mThreadCount == mSuccessCount) {
                             addEndingRequestQueue();
                         }
-                        mEscapeReceipt.setDownloadReceipt(response);
-                        mListener.onProgressChange(mEscapeReceipt);
                     }
                 });
     }
