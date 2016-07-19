@@ -27,16 +27,11 @@ public class DownloadReceipt implements Serializable {
     private int mPosition = 0;
     private ArrayList<STATE> mListState;
 
-    private ArrayList<Long> mListDownloadSize;
-    private ArrayList<Long> mListDownloadTotalSize;
+    private Long mDownloadSize = 0l;
+    private Long mDownloadTotalSize = 0l;
 
     public DownloadReceipt() {
         mListState = new ArrayList<STATE>();
-        mListDownloadSize = new ArrayList<Long>();
-        mListDownloadTotalSize = new ArrayList<Long>();
-        Long l = Long.valueOf(0);
-        mListDownloadSize.add(l);
-        mListDownloadTotalSize.add(l);
         mListState.add(STATE.NONE);
     }
 
@@ -61,49 +56,34 @@ public class DownloadReceipt implements Serializable {
         if (downloadSize == 0) {
             return;
         }
-        Long size = downloadSize;
-        mListDownloadSize.clear();
-        mListDownloadSize.add(size);
+        mDownloadSize = downloadSize;
     }
 
     public long getDownloadedSize() {
-        if (mListDownloadSize.size() <= 0) {
-            return 0;
-        }
-
-        return mListDownloadSize.get(0);
+        return mDownloadSize;
     }
 
     public long getDownloadedSize(int pos) {
-        if (mListDownloadSize.size() <= 0 || mListDownloadSize.size() < pos) {
-            return 0;
-        }
-        return mListDownloadSize.get(0);
+        return mDownloadSize;
     }
 
     public void setDownloadTotalSize(long downloadTotalSize) {
         if (downloadTotalSize == 0) {
             return;
         }
-        Long size = downloadTotalSize;
-        mListDownloadTotalSize.clear();
-        mListDownloadTotalSize.add(size);
+        mDownloadTotalSize = downloadTotalSize;
     }
 
     public long getDownloadTotalSize() {
-        if (mListDownloadTotalSize.size() <= 0) {
-            return 0;
-        }
-
-        return mListDownloadTotalSize.get(0);
+        return mDownloadTotalSize;
     }
 
     @Override
     public String toString() {
         String str = "";
 
-        str += "downloadSize[" + mPosition + "]:" + mListDownloadSize.get(0) +
-                ",downloadTotalSize" + mPosition + ":" + mListDownloadTotalSize.get(0) +
+        str += "downloadSize[" + mPosition + "]:" + mDownloadSize +
+                ",downloadTotalSize" + mPosition + ":" + mDownloadTotalSize +
                 ",downloadState:" + mListState + ";";
         return str;
     }

@@ -3,6 +3,7 @@ package com.freeload.jason.toolbox;
 import com.freeload.jason.core.DownloadThreadType;
 import com.freeload.jason.core.RequestQueue;
 import com.freeload.jason.core.Response;
+import com.freeload.jason.core.IReceipt;
 
 import java.util.ArrayList;
 
@@ -41,7 +42,7 @@ public class DownloadRequestManager {
         mDownloadRequestList = new ArrayList<DownloadRequest>();
     }
 
-    public DownloadRequestManager setListener(Response.Listener<EscapeReceipt> listener) {
+    public DownloadRequestManager setListener(Response.Listener<IReceipt> listener) {
         this.mListener = listener;
         return this;
     }
@@ -109,10 +110,12 @@ public class DownloadRequestManager {
     }
 
     private DownloadRequest createMulitDownloadRequest(int position, int threadType) {
-        return DownloadRequest.create(this.mId, this.mUrl)
+        return DownloadRequest.create()
+                .setDownloadId(this.mId)
+                .setDownloadUrl(this.mUrl)
                 .setThreadPositon(position)
                 .setReceipt(mCustomerReceipt.getDownloadReceipt(position))
-                .setDownloadFileName(mFileName)
+                .setDownloadFileName(this.mFileName)
                 .setDownloadThreadType(threadType)
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override
@@ -121,7 +124,7 @@ public class DownloadRequestManager {
                             ++mSuccessCount;
                         }
                         mEscapeReceipt.setDownloadReceipt(response);
-                        mListener.onProgressChange(mEscapeReceipt);
+                        mListener.onProgressChange((IReceipt) mEscapeReceipt);
 
                         if (mThreadCount == mSuccessCount) {
                             addEndingRequestQueue();
@@ -136,7 +139,7 @@ public class DownloadRequestManager {
 
     private DownloadRequest createFileRequest(int threadType) {
         DownloadRequest downloadRequest = mDownloadRequestList.get(0);
-        return DownloadRequest.create(0, "")
+        return DownloadRequest.create()
                 .setDownloadFileName(downloadRequest.getFileName())
                 .setThreadPositon(threadType + 2)
                 .setDownloadThreadType(threadType)

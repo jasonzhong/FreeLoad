@@ -1,5 +1,7 @@
 package com.freeload.jason.core;
 
+import android.text.TextUtils;
+
 import com.freeload.jason.core.DownloadThreadType;
 import com.freeload.jason.core.Prepare;
 import com.freeload.jason.core.Request;
@@ -155,6 +157,10 @@ public class PrepareDownload implements Prepare {
     }
 
     private boolean createFolder(String fileFolder) {
+        if (TextUtils.isEmpty(fileFolder)) {
+            return false;
+        }
+
         File folder = new File(fileFolder);
         if (!createAndCheckFolder(folder)) {
             return false;

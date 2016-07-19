@@ -1,6 +1,6 @@
 package com.freeload.jason.core;
 
-import com.freeload.jason.core.Network;
+import com.freeload.jason.core.INetwork;
 import com.freeload.jason.core.Request;
 import com.freeload.jason.core.Response;
 import com.freeload.jason.core.ResponseDelivery;
@@ -12,7 +12,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class BasicDownload implements Network {
+public class BasicDownload implements INetwork {
 
     /** connect to get downloadfile head timeout count. */
     private final static int CONNECT_TIMEOUT = 5 * 1000;

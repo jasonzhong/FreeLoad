@@ -1,9 +1,10 @@
 package com.freeload.jason.toolbox;
 
+import com.freeload.jason.core.IReceipt;
+
 import java.io.Serializable;
 import java.lang.Override;
 import java.util.ArrayList;
-import java.util.List;
 
 public class EscapeReceipt implements Serializable, IReceipt {
 
@@ -52,29 +53,6 @@ public class EscapeReceipt implements Serializable, IReceipt {
         }
 
         parseReceipt(receipt);
-        sortReceipt();
-    }
-
-    private void sortReceipt() {
-        if (mListReceipt.size() <= 1) {
-            return;
-        }
-
-        long totalSize = mListReceipt.get(0).getDownloadTotalSize();
-        int pos = 0;
-
-        for (int i = 1; i < mListReceipt.size(); ++i) {
-            long temp = mListReceipt.get(i).getDownloadTotalSize();
-            if (temp <= totalSize) {
-                continue;
-            }
-            totalSize = temp;
-            pos = i;
-        }
-
-        DownloadReceipt downloadReceipt = mListReceipt.get(pos);
-        mListReceipt.remove(pos);
-        mListReceipt.add(downloadReceipt);
     }
 
     private void parseReceipt(String receipt) {

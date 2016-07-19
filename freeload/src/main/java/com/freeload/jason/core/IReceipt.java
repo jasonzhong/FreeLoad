@@ -1,4 +1,4 @@
-package com.freeload.jason.toolbox;
+package com.freeload.jason.core;
 
 public interface IReceipt {
 

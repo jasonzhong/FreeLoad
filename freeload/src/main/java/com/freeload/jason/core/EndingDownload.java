@@ -1,7 +1,7 @@
 package com.freeload.jason.core;
 
 import com.freeload.jason.core.DownloadThreadType;
-import com.freeload.jason.core.Ending;
+import com.freeload.jason.core.IEnding;
 import com.freeload.jason.core.Request;
 import com.freeload.jason.core.Response;
 import com.freeload.jason.core.ResponseDelivery;
@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class EndingDownload implements Ending {
+public class EndingDownload implements IEnding {
 
     @Override
     public boolean endingPerform(Request<?> request, ResponseDelivery delivery) {

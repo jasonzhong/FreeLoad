@@ -2,6 +2,7 @@ package com.freeload.jason.core;
 
 import android.net.Uri;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.freeload.jason.toolbox.DownloadReceipt;
 
@@ -19,7 +20,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private boolean mCanceled = false;
 
     /** Unique id for download. */
-    private final int mId;
+    private int mId;
 
     /** download start position. */
     private long mDownloadStart = 0;
@@ -34,7 +35,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private long mWriteFileEnd = 0;
 
     /** URL of this request. */
-    private final String mUrl;
+    private String mUrl;
 
     /** save file in this request. */
     private File mSaveFile = null;
@@ -49,7 +50,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private String mFileName;
 
     /** download file parent folder. */
-    private final String mFileFolder;
+    private String mFileFolder;
 
     /** download file thread setting */
     private int mThreadType = DownloadThreadType.NORMAL;
@@ -62,12 +63,23 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     private final static String fileSaveDir = Environment.getExternalStorageDirectory() + "/freeload/downloadfile";
 
-    protected Request(int id, String Url, String fileFolder) {
-        this.mId = id;
-        this.mUrl = Url;
+    protected Request() {
+        this.mFileFolder = parseFileFolder(null);
+    }
 
-        this.mFileFolder = setFileFolder(fileFolder);
-        this.mFileName = setDefaultFileName(Url);
+    public void setId(int id) {
+        this.mId = id;
+    }
+
+    public void setUrl(String url) {
+        this.mUrl = url;
+        if (!TextUtils.isEmpty(url)) {
+            this.mFileName = setDefaultFileName(url);
+        }
+    }
+
+    public void setFileFolder(String fileFolder) {
+        this.mFileFolder = parseFileFolder(fileFolder);
     }
 
     public void setDownloadReceipt(DownloadReceipt downloadReceipt) {
@@ -78,9 +90,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         return this.mDownloadReceipt;
     }
 
-    private String setFileFolder(String fileFolder) {
+    private String parseFileFolder(String fileFolder) {
         String downloadFileFolder;
-        if (fileFolder == null) {
+        if (TextUtils.isEmpty(fileFolder)) {
             downloadFileFolder = fileSaveDir;
         } else {
             downloadFileFolder = fileFolder;

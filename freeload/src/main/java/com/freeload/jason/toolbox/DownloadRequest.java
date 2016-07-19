@@ -9,16 +9,8 @@ public class DownloadRequest extends Request<DownloadReceipt> {
 
     private Response.Listener<DownloadReceipt> mListener;
 
-    public static DownloadRequest create(int id, String Url) {
-        return create(id, Url, null);
-    }
-
-    public static DownloadRequest create(int id, String Url, String fileFolder) {
-        return new DownloadRequest(id, Url, fileFolder);
-    }
-
-    protected DownloadRequest(int id, String Url, String fileFolder) {
-        super(id, Url, fileFolder);
+    public static DownloadRequest create() {
+        return new DownloadRequest();
     }
 
     public DownloadRequest setDownloadFileName(String fileName) {
@@ -30,6 +22,16 @@ public class DownloadRequest extends Request<DownloadReceipt> {
 
     public DownloadRequest setListener(Response.Listener<DownloadReceipt> listener) {
         this.mListener = listener;
+        return this;
+    }
+
+    public DownloadRequest setDownloadId(int id) {
+        setId(id);
+        return this;
+    }
+
+    public DownloadRequest setDownloadUrl(String url) {
+        setUrl(url);
         return this;
     }
 
