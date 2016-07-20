@@ -15,10 +15,17 @@ public class EscapeReceipt implements Serializable, IReceipt {
     }
 
     public DownloadReceipt getDownloadReceipt(int pos) {
-        if (mListReceipt.size() <= 0 || mListReceipt.size() < (pos - 1)) {
+        if (mListReceipt.size() <= 0 || mListReceipt.size() < pos) {
             return null;
         }
-        return mListReceipt.get(pos - 1);
+
+        for (int n = 0; n < mListReceipt.size(); ++n) {
+            DownloadReceipt downloadReceipt = mListReceipt.get(n);
+            if (downloadReceipt.getDownloadPosition() == pos) {
+                return downloadReceipt;
+            }
+        }
+        return null;
     }
 
     public void setDownloadReceipt(DownloadReceipt receipt) {
@@ -65,10 +72,12 @@ public class EscapeReceipt implements Serializable, IReceipt {
             }
 
             String downloadSize = receiptSplitInfo[0].substring(receiptSplitInfo[0].indexOf(":") + 1, receiptSplitInfo[0].length());
+            String downloadPosition = receiptSplitInfo[0].substring(receiptSplitInfo[0].indexOf("[") + 1, receiptSplitInfo[0].indexOf("]"));
             String downloadTotalSize = receiptSplitInfo[1].substring(receiptSplitInfo[1].indexOf(":") + 1, receiptSplitInfo[1].length());
 
             DownloadReceipt downloadReceipt = new DownloadReceipt();
             downloadReceipt.setDownloadedSize(Long.parseLong(downloadSize));
+            downloadReceipt.setDownloadPosition(Integer.parseInt(downloadPosition));
             downloadReceipt.setDownloadTotalSize(Long.parseLong(downloadTotalSize));
             mListReceipt.add(downloadReceipt);
         }
@@ -79,8 +88,8 @@ public class EscapeReceipt implements Serializable, IReceipt {
         String str = "";
 
         for (int i = 0; i < mListReceipt.size(); ++i) {
-            str += "downloadSize" + mListReceipt.get(i).getDownloadPosition() + ":" + mListReceipt.get(i).getDownloadedSize() +
-                    ",downloadTotalSize" + mListReceipt.get(i).getDownloadPosition() + ":" + mListReceipt.get(i).getDownloadTotalSize() +
+            str += "downloadSize[" + mListReceipt.get(i).getDownloadPosition() + "]:" + mListReceipt.get(i).getDownloadedSize() +
+                    ",downloadTotalSize:" + mListReceipt.get(i).getDownloadTotalSize() +
                     ",downloadState:" + mListReceipt.get(i).getDownloadState() + ";";
         }
         return str;

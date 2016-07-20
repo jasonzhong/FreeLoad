@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
 
     private String receipt = "";
 
-    private String downloadUrl = "http://sw.bos.baidu.com/sw-search-sp/software/f726db3f1f943/QQ_8.4.18380.0_setup.exe";
+    private String downloadUrl = "http://bcs.91.com/wisedown/data/wisegame/4c6e7cc01e81f333/hetaoduobao_33.apk";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
                 request = DownloadRequestManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
-                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {
@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
                         .setEscapeReceipt(receipt)
-                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {

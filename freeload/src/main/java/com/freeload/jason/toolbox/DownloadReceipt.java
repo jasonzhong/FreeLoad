@@ -63,10 +63,6 @@ public class DownloadReceipt implements Serializable {
         return mDownloadSize;
     }
 
-    public long getDownloadedSize(int pos) {
-        return mDownloadSize;
-    }
-
     public void setDownloadTotalSize(long downloadTotalSize) {
         if (downloadTotalSize == 0) {
             return;

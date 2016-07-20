@@ -2,11 +2,6 @@ package com.freeload.jason.core;
 
 import android.text.TextUtils;
 
-import com.freeload.jason.core.DownloadThreadType;
-import com.freeload.jason.core.Prepare;
-import com.freeload.jason.core.Request;
-import com.freeload.jason.core.Response;
-import com.freeload.jason.core.ResponseDelivery;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.File;
@@ -32,23 +27,55 @@ public class PrepareDownload implements Prepare {
         request.setDownloadFileSize(downloadFileSize);
 
         postResponse(delivery, request, DownloadReceipt.STATE.QUEST_PREPARE);
-        boolean bParse = parseReceipt(request, downloadFileSize);
+        boolean bParse = parseStoragePages(request);
         if (!bParse) {
             postResponse(delivery, request, DownloadReceipt.STATE.FAILED_QUEST_PREPARE);
         }
 
         postResponse(delivery, request, DownloadReceipt.STATE.CREATEFILE);
-        File saveFile = createFile(request);
-        if (saveFile == null) {
+        boolean bCreate = createFile(request);
+        if (!bCreate) {
             postResponse(delivery, request, DownloadReceipt.STATE.FAILED_CREATEFILE);
             return false;
         }
-        request.setDownloadFile(saveFile);
 
         return true;
     }
 
-    private boolean parseReceipt(Request<?> request, long downloadFileSize) {
+    private boolean parseStoragePages(Request<?> request) {
+        if (request == null) {
+            return false;
+        }
+
+        DownloadReceipt downloadReceipt = request.getDownloadReceipt();
+        if (downloadReceipt != null) {
+            return parseStoragePagesFromReceipt(request, downloadReceipt);
+        }
+
+        return parseStoragePagesFromNew(request, request.getDownloadFileSize());
+    }
+
+    private boolean parseStoragePagesFromReceipt(Request<?> request, DownloadReceipt downloadReceipt) {
+        if (request == null || downloadReceipt == null) {
+            return false;
+        }
+
+        // 设置文件名
+        String fileName = request.getFileName() + downloadReceipt.getDownloadPosition();
+        request.setFileName(fileName);
+
+        long lSize = downloadReceipt.getDownloadedSize();
+        request.setDownloadStart(lSize);
+        request.setWriteFileStart(lSize);
+
+        long lTotalSize = downloadReceipt.getDownloadTotalSize();
+        request.setDownloadEnd(lTotalSize);
+        request.setWriteFileEnd(lTotalSize);
+
+        return true;
+    }
+
+    private boolean parseStoragePagesFromNew(Request<?> request, long downloadFileSize) {
         boolean bRes = true;
         int threadType = request.getThreadType();
         switch (threadType) {
@@ -78,15 +105,10 @@ public class PrepareDownload implements Prepare {
         pos = ( pos >= 0 ? pos : 0 );
         if (downloadReceipt == null) {
             request.setDownloadStart(perSize * pos);
-        } else {
-            long lSize = downloadReceipt.getDownloadedSize(nPos);
-            request.setDownloadStart(lSize == 0 ? (perSize * pos) : lSize);
-        }
-
-        if (downloadReceipt == null) {
             request.setWriteFileStart(0);
         } else {
-            long lSize = downloadReceipt.getDownloadedSize(nPos);
+            long lSize = downloadReceipt.getDownloadedSize();
+            request.setDownloadStart(lSize == 0 ? (perSize * pos) : lSize);
             request.setWriteFileStart(lSize - (perSize * pos));
         }
 
@@ -118,11 +140,41 @@ public class PrepareDownload implements Prepare {
         delivery.postResponse(request, Response.success(downloadReceipt));
     }
 
-    private File createFile(Request<?> request) {
-        if (!createFolder(request.getFolderName())) {
-            return null;
+    private boolean createFile(Request<?> request) {
+        if (request == null) {
+            return false;
         }
 
+        if (!createFolder(request.getFolderName())) {
+            return false;
+        }
+
+        DownloadReceipt downloadReceipt = request.getDownloadReceipt();
+        if (downloadReceipt != null) {
+            return createFileFromReceipt(request, downloadReceipt);
+        }
+
+        File saveFile = createFileFromNew(request);
+        if (saveFile == null) {
+            return false;
+        }
+        request.setDownloadFile(saveFile);
+
+        return true;
+    }
+
+    private boolean createFileFromReceipt(Request<?> request, DownloadReceipt downloadReceipt) {
+        if (request == null || downloadReceipt == null) {
+            return false;
+        }
+
+        File saveFile = new File(request.getFolderName(), request.getFileName());
+        request.setDownloadFile(saveFile);
+
+        return true;
+    }
+
+    private File createFileFromNew(Request<?> request) {
         File saveFile = new File(request.getFolderName(), request.getFileName());
 
         try {
@@ -193,8 +245,9 @@ public class PrepareDownload implements Prepare {
     }
 
     private long getFileSize(Request<?> request) {
-        if (request.getDownloadFileSize() > 0) {
-            return 0;
+        DownloadReceipt downloadReceipt = request.getDownloadReceipt();
+        if (downloadReceipt != null) {
+            return downloadReceipt.getDownloadTotalSize();
         }
 
         long downloadFileSize = 0;
@@ -208,22 +261,29 @@ public class PrepareDownload implements Prepare {
     }
 
     private long connectAndGetFileSize(Request<?> request) throws Exception {
-        URL mUrl = new URL(request.getUrl());
-        HttpURLConnection conn = (HttpURLConnection) mUrl.openConnection();
-        conn.setConnectTimeout(CONNECT_TIMEOUT);
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept-Encoding", "identity");
-        conn.setRequestProperty("Referer", request.getUrl());
-        conn.setRequestProperty("Charset", "UTF-8");
-        conn.setRequestProperty("Connection", "Keep-Alive");
-        conn.connect();
-
         long lenght = 0;
-        int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            lenght = conn.getContentLength();
+
+        HttpURLConnection conn = null;
+        try {
+            URL mUrl = new URL(request.getUrl());
+            conn = (HttpURLConnection) mUrl.openConnection();
+            conn.setConnectTimeout(CONNECT_TIMEOUT);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept-Encoding", "identity");
+            conn.setRequestProperty("Referer", request.getUrl());
+            conn.setRequestProperty("Charset", "UTF-8");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.connect();
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                lenght = conn.getContentLength();
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
-        conn.disconnect();
 
         return lenght;
     }
