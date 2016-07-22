@@ -1,7 +1,6 @@
 package com.freeload.jason.toolbox;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class DownloadReceipt implements Serializable {
 
@@ -27,10 +26,12 @@ public class DownloadReceipt implements Serializable {
     private int mPosition = 0;
     private STATE mState;
 
-    private Long mDownloadSize = 0l;
-    private Long mDownloadTotalSize = 0l;
-    private Long mWriteSize = 0l;
-    private Long mWriteTotalSize = 0l;
+    private Long mDownloadedSize = 0l;
+    private Long mTotalDownloadSize = 0l;
+    private Long mStartDownloadPosition = 0l;
+
+    private Long mWriteFileSize = 0l;
+    private Long mWriteFileTotalSize = 0l;
 
     public DownloadReceipt() {
         mState = STATE.NONE;
@@ -45,19 +46,27 @@ public class DownloadReceipt implements Serializable {
     }
 
     public void setWriteSize(Long size) {
-        mWriteSize = size;
+        mWriteFileSize = size;
     }
 
     public long getWriteSize() {
-        return mWriteSize;
+        return mWriteFileSize;
     }
 
     public void setWriteTotalSize(long size) {
-        mWriteTotalSize = size;
+        mWriteFileTotalSize = size;
     }
 
     public long getWriteTotalSize() {
-        return mWriteTotalSize;
+        return mWriteFileTotalSize;
+    }
+
+    public void setStartDownloadPosition(long size) {
+        mStartDownloadPosition = size;
+    }
+
+    public long getStartDownloadPosition() {
+        return mStartDownloadPosition;
     }
 
     public void setDownloadPosition(int position) {
@@ -72,30 +81,30 @@ public class DownloadReceipt implements Serializable {
         if (downloadSize == 0) {
             return;
         }
-        mDownloadSize = downloadSize;
+        mDownloadedSize = downloadSize;
     }
 
     public long getDownloadedSize() {
-        return mDownloadSize;
+        return mDownloadedSize;
     }
 
     public void setDownloadTotalSize(long downloadTotalSize) {
         if (downloadTotalSize == 0) {
             return;
         }
-        mDownloadTotalSize = downloadTotalSize;
+        mTotalDownloadSize = downloadTotalSize;
     }
 
     public long getDownloadTotalSize() {
-        return mDownloadTotalSize;
+        return mTotalDownloadSize;
     }
 
     @Override
     public String toString() {
         String str = "";
 
-        str += "[" + mPosition + "] downloadSize:" + mDownloadSize +
-                ",downloadTotalSize" + mPosition + ":" + mDownloadTotalSize +
+        str += "[" + mPosition + "] downloadSize:" + mDownloadedSize +
+                ",downloadTotalSize" + mPosition + ":" + mTotalDownloadSize +
                 ",downloadState:" + mState + ";";
         return str;
     }
