@@ -141,7 +141,6 @@ public class DownloadRequestManager {
         DownloadRequest downloadRequest = mDownloadRequestList.get(0);
         return DownloadRequest.create()
                 .setDownloadFileName(downloadRequest.getFileName())
-                .setThreadPositon(threadType + 2)
                 .setDownloadThreadType(threadType)
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override

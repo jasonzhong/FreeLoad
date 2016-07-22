@@ -25,23 +25,39 @@ public class DownloadReceipt implements Serializable {
 	}
 
     private int mPosition = 0;
-    private ArrayList<STATE> mListState;
+    private STATE mState;
 
     private Long mDownloadSize = 0l;
     private Long mDownloadTotalSize = 0l;
+    private Long mWriteSize = 0l;
+    private Long mWriteTotalSize = 0l;
 
     public DownloadReceipt() {
-        mListState = new ArrayList<STATE>();
-        mListState.add(STATE.NONE);
+        mState = STATE.NONE;
     }
 
     public void setDownloadState(STATE state) {
-        mListState.clear();
-        mListState.add(state);
+        mState = state;
     }
 
     public STATE getDownloadState() {
-        return mListState.get(0);
+        return mState;
+    }
+
+    public void setWriteSize(Long size) {
+        mWriteSize = size;
+    }
+
+    public long getWriteSize() {
+        return mWriteSize;
+    }
+
+    public void setWriteTotalSize(long size) {
+        mWriteTotalSize = size;
+    }
+
+    public long getWriteTotalSize() {
+        return mWriteTotalSize;
     }
 
     public void setDownloadPosition(int position) {
@@ -78,9 +94,9 @@ public class DownloadReceipt implements Serializable {
     public String toString() {
         String str = "";
 
-        str += "downloadSize[" + mPosition + "]:" + mDownloadSize +
+        str += "[" + mPosition + "] downloadSize:" + mDownloadSize +
                 ",downloadTotalSize" + mPosition + ":" + mDownloadTotalSize +
-                ",downloadState:" + mListState + ";";
+                ",downloadState:" + mState + ";";
         return str;
     }
 }

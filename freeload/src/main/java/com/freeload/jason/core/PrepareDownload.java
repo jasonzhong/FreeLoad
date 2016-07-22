@@ -93,31 +93,28 @@ public class PrepareDownload implements Prepare {
     }
 
     private boolean setQuestDownloadSizeInfo(Request<?> request, long downloadFileSize, int division) {
-        long perSize = downloadFileSize / division;
+        long sizePart = downloadFileSize / 1024;
+        long halfSize = sizePart / division * 1024;
+
+        long perSize = downloadFileSize - halfSize;
         int nPos = request.getThreadPosition();
 
         String fileName = request.getFileName();
         fileName += "" + nPos;
         request.setFileName(fileName);
 
-        DownloadReceipt downloadReceipt = request.getDownloadReceipt();
         int pos = nPos - 1;
         pos = ( pos >= 0 ? pos : 0 );
-        if (downloadReceipt == null) {
-            request.setDownloadStart(perSize * pos);
-            request.setWriteFileStart(0);
-        } else {
-            long lSize = downloadReceipt.getDownloadedSize();
-            request.setDownloadStart(lSize == 0 ? (perSize * pos) : lSize);
-            request.setWriteFileStart(lSize - (perSize * pos));
-        }
+
+        request.setDownloadStart(perSize * pos);
+        request.setWriteFileStart(0);
 
         if (division == 1 || nPos == division) {
             request.setDownloadEnd(downloadFileSize);
             request.setWriteFileEnd(downloadFileSize - (perSize * pos));
         } else {
-            request.setDownloadEnd(perSize * nPos - 1);
-            request.setWriteFileEnd(perSize * nPos - 1);
+            request.setDownloadEnd(perSize * nPos);
+            request.setWriteFileEnd(perSize * nPos);
         }
 
         if (division == 1) {

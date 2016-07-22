@@ -31,7 +31,6 @@ public class EndingDownload implements IEnding {
                 break;
         }
 
-
         String fileName = request.getFileName();
         int last = fileName.indexOf(".tmp");
         fileName = fileName.substring(0, last);

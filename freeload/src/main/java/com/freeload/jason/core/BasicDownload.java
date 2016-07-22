@@ -103,12 +103,12 @@ public class BasicDownload implements INetwork {
             threadfile.write(buffer, 0, offset);
             downloadLength += offset;
 
+            postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD, startPos + downloadLength, endPos);
+
             if (request.isCanceled()) {
                 postResponse(request, delivery, DownloadReceipt.STATE.CANCEL);
                 break;
             }
-
-            postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD, startPos + downloadLength, endPos);
         }
 
         threadfile.close();
