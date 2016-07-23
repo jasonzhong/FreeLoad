@@ -20,7 +20,8 @@ import com.freeload.jason.toolbox.Freeload;
 public class MainActivity extends Activity {
 
     private RequestQueue requestQueue = null;
-    private DownloadRequestManager request = null;
+    private DownloadRequestManager requestDoublie = null;
+    private DownloadRequestManager requestNormal = null;
 
     private Button mStart = null;
     private Button mEnd = null;
@@ -45,7 +46,7 @@ public class MainActivity extends Activity {
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request = DownloadRequestManager.create()
+                requestDoublie = DownloadRequestManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
                         .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
@@ -64,7 +65,7 @@ public class MainActivity extends Activity {
         mEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request.cancel();
+                requestDoublie.cancel();
             }
         });
 
@@ -72,7 +73,7 @@ public class MainActivity extends Activity {
         mResume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request = DownloadRequestManager.create()
+                requestDoublie = DownloadRequestManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
                         .setEscapeReceipt(receipt)
@@ -92,7 +93,7 @@ public class MainActivity extends Activity {
         mStart1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request = DownloadRequestManager.create()
+                requestNormal = DownloadRequestManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
                         .setDownloadThreadType(DownloadThreadType.NORMAL)
@@ -111,7 +112,7 @@ public class MainActivity extends Activity {
         mEnd1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request.cancel();
+                requestNormal.cancel();
             }
         });
 
@@ -119,7 +120,7 @@ public class MainActivity extends Activity {
         mResume1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request = DownloadRequestManager.create()
+                requestNormal = DownloadRequestManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
                         .setEscapeReceipt(receipt)

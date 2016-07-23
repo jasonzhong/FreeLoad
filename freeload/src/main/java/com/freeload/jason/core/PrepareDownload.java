@@ -115,8 +115,8 @@ public class PrepareDownload implements Prepare {
             request.setDownloadEnd(downloadFileSize);
             request.setWriteFileEnd(downloadFileSize - (perSize * pos));
         } else {
-            request.setDownloadEnd(perSize * nPos);
-            request.setWriteFileEnd(perSize * nPos);
+            request.setDownloadEnd(perSize * nPos -1);
+            request.setWriteFileEnd(perSize * nPos -1);
         }
 
         if (division == 1) {
