@@ -1,10 +1,5 @@
 package com.freeload.jason.core;
 
-import com.freeload.jason.core.DownloadThreadType;
-import com.freeload.jason.core.IEnding;
-import com.freeload.jason.core.Request;
-import com.freeload.jason.core.Response;
-import com.freeload.jason.core.ResponseDelivery;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.File;
@@ -61,11 +56,22 @@ public class EndingDownload implements IEnding {
             fileCopy.write(b);
 
             fileSrc.close();
-            fileCopy.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (fileCopy != null) {
+                    fileCopy.close();
+                }
+
+                if (fileSrc != null) {
+                    fileSrc.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -24,11 +24,6 @@ public class ExecutorDelivery implements ResponseDelivery {
     }
 
     @Override
-    public void postResponse(Request<?> request) {
-        postResponse(request, null);
-    }
-
-    @Override
     public void postResponse(Request<?> request, Response<?> response) {
         postDownloadProgress(request, response, 0, 0);
     }
@@ -41,14 +36,10 @@ public class ExecutorDelivery implements ResponseDelivery {
     private class ResponseProgressDeliveryRunnable implements Runnable {
         private final Request mRequest;
         private final Response mResponse;
-        private final long mFileSize;
-        private final long mDownloadedSize;
 
         private ResponseProgressDeliveryRunnable(Request request, Response response, long mFileSize, long mDownloadedSize) {
             this.mRequest = request;
             this.mResponse = response;
-            this.mFileSize = mFileSize;
-            this.mDownloadedSize = mDownloadedSize;
         }
 
         @SuppressWarnings("unchecked")

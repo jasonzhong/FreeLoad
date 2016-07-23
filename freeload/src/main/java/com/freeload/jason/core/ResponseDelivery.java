@@ -1,10 +1,6 @@
 package com.freeload.jason.core;
 
 public interface ResponseDelivery {
-
-    /** Parses a response from the network or cache and delivers it.*/
-    public void postResponse(Request<?> request);
-
     /** Parses a response from the network or cache and delivers it.*/
     public void postResponse(Request<?> request, Response<?> response);
 
