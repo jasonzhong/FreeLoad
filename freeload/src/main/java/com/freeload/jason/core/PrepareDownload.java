@@ -64,13 +64,15 @@ public class PrepareDownload implements Prepare {
         String fileName = request.getFileName() + downloadReceipt.getDownloadPosition();
         request.setFileName(fileName);
 
-        long lSize = downloadReceipt.getDownloadedSize();
-        request.setDownloadStart(lSize);
-        request.setWriteFileStart(lSize);
+        long lDownloadSize = downloadReceipt.getDownloadedSize();
+        request.setDownloadStart(lDownloadSize);
+        long lWriteFileSize = downloadReceipt.getWriteFileSize();
+        request.setWriteFileStart(lWriteFileSize);
 
-        long lTotalSize = downloadReceipt.getDownloadTotalSize();
-        request.setDownloadEnd(lTotalSize);
-        request.setWriteFileEnd(lTotalSize);
+        long lDownloadTotalSize = downloadReceipt.getDownloadTotalSize();
+        request.setDownloadEnd(lDownloadTotalSize);
+        long lWriteFileTotalSize = downloadReceipt.getWriteFileTotalSize();
+        request.setWriteFileEnd(lWriteFileTotalSize);
 
         return true;
     }

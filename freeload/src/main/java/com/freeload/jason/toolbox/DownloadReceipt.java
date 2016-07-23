@@ -26,11 +26,15 @@ public class DownloadReceipt implements Serializable {
     private int mPosition = 0;
     private STATE mState;
 
+    //当前分区下载进度
     private Long mDownloadedSize = 0l;
+    //当前分区总下载容量
     private Long mTotalDownloadSize = 0l;
+    //空着
     private Long mStartDownloadPosition = 0l;
-
+    //当前文件写入进度
     private Long mWriteFileSize = 0l;
+    //文件总大小
     private Long mWriteFileTotalSize = 0l;
 
     public DownloadReceipt() {
@@ -45,19 +49,19 @@ public class DownloadReceipt implements Serializable {
         return mState;
     }
 
-    public void setWriteSize(Long size) {
+    public void setWriteFileSize(Long size) {
         mWriteFileSize = size;
     }
 
-    public long getWriteSize() {
+    public long getWriteFileSize() {
         return mWriteFileSize;
     }
 
-    public void setWriteTotalSize(long size) {
+    public void setWriteFileTotalSize(long size) {
         mWriteFileTotalSize = size;
     }
 
-    public long getWriteTotalSize() {
+    public long getWriteFileTotalSize() {
         return mWriteFileTotalSize;
     }
 
@@ -88,7 +92,7 @@ public class DownloadReceipt implements Serializable {
         return mDownloadedSize;
     }
 
-    public void setDownloadTotalSize(long downloadTotalSize) {
+    public void setTotalDownloadSize(long downloadTotalSize) {
         if (downloadTotalSize == 0) {
             return;
         }
@@ -104,7 +108,10 @@ public class DownloadReceipt implements Serializable {
         String str = "";
 
         str += "[" + mPosition + "] downloadSize:" + mDownloadedSize +
-                ",downloadTotalSize" + mPosition + ":" + mTotalDownloadSize +
+                ",downloadTotalSize:" + mTotalDownloadSize +
+                ",writeFileSize:" + mWriteFileSize +
+                ",writeFileTotalSize:" + mWriteFileTotalSize +
+                ",startDownloadPosition:" + mStartDownloadPosition +
                 ",downloadState:" + mState + ";";
         return str;
     }

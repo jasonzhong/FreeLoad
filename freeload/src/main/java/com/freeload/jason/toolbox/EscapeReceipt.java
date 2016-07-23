@@ -35,6 +35,9 @@ public class EscapeReceipt implements Serializable, IReceipt {
 
         long size = 0;
         long totalSize = 0;
+
+        long fileSize = 0;
+        long fileTotalSize = 0;
         int pos = 0;
         for (; pos < mListReceipt.size(); ++pos) {
             DownloadReceipt localReceipt = mListReceipt.get(pos);
@@ -42,9 +45,14 @@ public class EscapeReceipt implements Serializable, IReceipt {
                 size = localReceipt.getDownloadedSize();
                 totalSize = localReceipt.getDownloadTotalSize();
 
+                fileSize = localReceipt.getWriteFileSize();
+                fileTotalSize = localReceipt.getDownloadTotalSize();
+
                 if (receipt.getDownloadTotalSize() == 0) {
                     receipt.setDownloadedSize(size);
-                    receipt.setDownloadTotalSize(totalSize);
+                    receipt.setTotalDownloadSize(totalSize);
+                    receipt.setWriteFileSize(fileSize);
+                    receipt.setWriteFileTotalSize(fileTotalSize);
                 }
                 mListReceipt.remove(pos);
                 mListReceipt.add(receipt);
@@ -74,11 +82,16 @@ public class EscapeReceipt implements Serializable, IReceipt {
             String downloadSize = receiptSplitInfo[0].substring(receiptSplitInfo[0].indexOf(":") + 1, receiptSplitInfo[0].length());
             String downloadPosition = receiptSplitInfo[0].substring(receiptSplitInfo[0].indexOf("[") + 1, receiptSplitInfo[0].indexOf("]"));
             String downloadTotalSize = receiptSplitInfo[1].substring(receiptSplitInfo[1].indexOf(":") + 1, receiptSplitInfo[1].length());
+            String writeFileSize = receiptSplitInfo[2].substring(receiptSplitInfo[2].indexOf(":") + 1, receiptSplitInfo[2].length());
+            String writeFileTotalSize = receiptSplitInfo[3].substring(receiptSplitInfo[3].indexOf(":") + 1, receiptSplitInfo[3].length());
 
             DownloadReceipt downloadReceipt = new DownloadReceipt();
             downloadReceipt.setDownloadedSize(Long.parseLong(downloadSize));
             downloadReceipt.setDownloadPosition(Integer.parseInt(downloadPosition));
-            downloadReceipt.setDownloadTotalSize(Long.parseLong(downloadTotalSize));
+            downloadReceipt.setTotalDownloadSize(Long.parseLong(downloadTotalSize));
+            downloadReceipt.setWriteFileSize(Long.parseLong(writeFileSize));
+            downloadReceipt.setWriteFileTotalSize(Long.parseLong(writeFileTotalSize));
+            downloadReceipt.setStartDownloadPosition(Long.parseLong(downloadPosition));
             mListReceipt.add(downloadReceipt);
         }
     }
@@ -88,8 +101,11 @@ public class EscapeReceipt implements Serializable, IReceipt {
         String str = "";
 
         for (int i = 0; i < mListReceipt.size(); ++i) {
-            str += "downloadSize[" + mListReceipt.get(i).getDownloadPosition() + "]:" + mListReceipt.get(i).getDownloadedSize() +
+            str += "[" + mListReceipt.get(i).getDownloadPosition() + "]" +
+                    "downloadSize:" + mListReceipt.get(i).getDownloadedSize() +
                     ",downloadTotalSize:" + mListReceipt.get(i).getDownloadTotalSize() +
+                    ",mWriteFileSize:" + mListReceipt.get(i).getWriteFileSize() +
+                    ",mWriteFileTotalSize:" + mListReceipt.get(i).getWriteFileTotalSize() +
                     ",downloadState:" + mListReceipt.get(i).getDownloadState() + ";";
         }
         return str;
