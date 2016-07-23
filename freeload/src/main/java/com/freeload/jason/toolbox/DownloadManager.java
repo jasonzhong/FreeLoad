@@ -1,5 +1,6 @@
 package com.freeload.jason.toolbox;
 
+import com.freeload.jason.core.DownloadRequest;
 import com.freeload.jason.core.DownloadThreadType;
 import com.freeload.jason.core.RequestQueue;
 import com.freeload.jason.core.Response;
@@ -7,63 +8,47 @@ import com.freeload.jason.core.IReceipt;
 
 import java.util.ArrayList;
 
-public class DownloadRequestManager {
-    /** Unique id for download. */
-    private int mId;
-
-    /** URL of this request. */
-    private String mUrl;
-
-    /** download file receipt */
-    private EscapeReceipt mCustomerReceipt = null;
-
-    /** download file receipt */
-    private EscapeReceipt mEscapeReceipt = null;
-
-    /** download file thread setting */
-    private int mThreadType = DownloadThreadType.NORMAL;
-
-    private String mFileName = "";
-
+public class DownloadManager {
     private int mThreadCount = 0;
     private int mSuccessCount = 0;
+
     private RequestQueue mRequestQueue = null;
 
-    private Response.Listener<IReceipt> mListener = null;
+    private EssentialInfo mEssentialInfo = null;
+
     private ArrayList<DownloadRequest> mDownloadRequestList = null;
 
-    public static DownloadRequestManager create() {
-        return new DownloadRequestManager();
+    public static DownloadManager create() {
+        return new DownloadManager();
     }
 
-    protected DownloadRequestManager() {
-        mEscapeReceipt = new EscapeReceipt();
-        mCustomerReceipt = new EscapeReceipt();
+    protected DownloadManager() {
+        mEssentialInfo = new EssentialInfo();
         mDownloadRequestList = new ArrayList<DownloadRequest>();
     }
 
-    public DownloadRequestManager setListener(Response.Listener<IReceipt> listener) {
-        this.mListener = listener;
+    public DownloadManager setListener(Response.Listener<IReceipt> listener) {
+        this.mEssentialInfo.mListener = listener;
         return this;
     }
 
-    public DownloadRequestManager setDownloadId(int id) {
-        this.mId = id;
+    public DownloadManager setDownloadId(int id) {
+        this.mEssentialInfo.mId = id;
         return this;
     }
 
-    public DownloadRequestManager setDownloadUrl(String Url) {
-        this.mUrl = Url;
+    public DownloadManager setDownloadUrl(String Url) {
+        this.mEssentialInfo.mUrl = Url;
         return this;
     }
 
-    public DownloadRequestManager setFileName(String fileName) {
-        this.mFileName = fileName;
+    public DownloadManager setFileName(String fileName) {
+        this.mEssentialInfo.mFileName = fileName;
         return this;
     }
 
-    public DownloadRequestManager setEscapeReceipt(String receipt) {
-        this.mCustomerReceipt.setCustomerReceipt(receipt);
+    public DownloadManager setEscapeReceipt(String receipt) {
+        this.mEssentialInfo.mCustomerReceipt.setCustomerReceipt(receipt);
         return this;
     }
 
@@ -73,11 +58,11 @@ public class DownloadRequestManager {
         }
     }
 
-    public DownloadRequestManager addRequestQueue(RequestQueue requestQueue) {
+    public DownloadManager addRequestQueue(RequestQueue requestQueue) {
         mRequestQueue = requestQueue;
 
         int ThreadSize = 1;
-        switch (this.mThreadType) {
+        switch (this.mEssentialInfo.mThreadType) {
             case DownloadThreadType.NORMAL:
                 ThreadSize = 1;
                 break;
@@ -100,22 +85,22 @@ public class DownloadRequestManager {
     private void addRequestQueue(int pos) {
         mThreadCount = pos;
         for (int position = 1; position <= pos; ++position) {
-            mDownloadRequestList.add(createMulitDownloadRequest(position, this.mThreadType));
+            mDownloadRequestList.add(createMulitDownloadRequest(position, this.mEssentialInfo.mThreadType));
         }
     }
 
-    public DownloadRequestManager setDownloadThreadType(int type) {
-        this.mThreadType = type;
+    public DownloadManager setDownloadThreadType(int type) {
+        this.mEssentialInfo.mThreadType = type;
         return this;
     }
 
     private DownloadRequest createMulitDownloadRequest(int position, int threadType) {
         return DownloadRequest.create()
-                .setDownloadId(this.mId)
-                .setDownloadUrl(this.mUrl)
+                .setDownloadId(this.mEssentialInfo.mId)
+                .setDownloadUrl(this.mEssentialInfo.mUrl)
                 .setThreadPositon(position)
-                .setReceipt(mCustomerReceipt.getDownloadReceipt(position))
-                .setDownloadFileName(this.mFileName)
+                .setReceipt(mEssentialInfo.mCustomerReceipt.getDownloadReceipt(position))
+                .setDownloadFileName(this.mEssentialInfo.mFileName)
                 .setDownloadThreadType(threadType)
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override
@@ -123,8 +108,9 @@ public class DownloadRequestManager {
                         if (response.getDownloadState() == DownloadReceipt.STATE.SUCCESS_DOWNLOAD) {
                             ++mSuccessCount;
                         }
-                        mEscapeReceipt.setDownloadReceipt(response);
-                        mListener.onProgressChange((IReceipt) mEscapeReceipt);
+                        EscapeReceipt escapeReceipt = new EscapeReceipt();
+                        escapeReceipt.setDownloadReceipt(response);
+                        mEssentialInfo.mListener.onProgressChange(escapeReceipt);
 
                         if (mThreadCount == mSuccessCount) {
                             addEndingRequestQueue();
@@ -134,7 +120,7 @@ public class DownloadRequestManager {
     }
 
     private void addEndingRequestQueue() {
-        mRequestQueue.addEnding(createFileRequest(mThreadType));
+        mRequestQueue.addEnding(createFileRequest(mEssentialInfo.mThreadType));
     }
 
     private DownloadRequest createFileRequest(int threadType) {
@@ -145,8 +131,9 @@ public class DownloadRequestManager {
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override
                     public void onProgressChange(DownloadReceipt response) {
-                        mEscapeReceipt.setDownloadReceipt(response);
-                        mListener.onProgressChange(mEscapeReceipt);
+                        EscapeReceipt escapeReceipt = new EscapeReceipt();
+                        escapeReceipt.setDownloadReceipt(response);
+                        mEssentialInfo.mListener.onProgressChange(escapeReceipt);
                     }
                 });
     }

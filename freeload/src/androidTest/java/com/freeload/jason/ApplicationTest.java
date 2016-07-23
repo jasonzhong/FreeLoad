@@ -2,12 +2,9 @@ package com.freeload.jason;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
-import android.widget.Toast;
 
 import com.freeload.jason.core.RequestQueue;
-import com.freeload.jason.core.Response;
-import com.freeload.jason.toolbox.DownloadRequest;
-import com.freeload.jason.toolbox.Freeload;
+import com.freeload.jason.core.DownloadRequest;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>

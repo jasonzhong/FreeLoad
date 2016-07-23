@@ -1,9 +1,8 @@
-package com.freeload.jason.toolbox;
+package com.freeload.jason.core;
 
 import android.text.TextUtils;
 
-import com.freeload.jason.core.Request;
-import com.freeload.jason.core.Response;
+import com.freeload.jason.toolbox.DownloadReceipt;
 
 public class DownloadRequest extends Request<DownloadReceipt> {
 
