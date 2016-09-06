@@ -4,7 +4,7 @@ import android.os.Process;
 
 import java.util.concurrent.BlockingQueue;
 
-public class FileDispatcher  extends Thread {
+public class FileDispatcher extends Thread {
 
     private boolean finish = false;
 

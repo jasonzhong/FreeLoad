@@ -33,11 +33,22 @@ public class EndingDownload implements IEnding {
 
         for (int n = 1; n <= size; ++n) {
             copyNewFile(request, saveFile, n);
+            deleteTempFile(request, saveFile, n);
         }
 
         postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE);
 
         return true;
+    }
+
+    private void deleteTempFile(Request<?> request, File saveFile, int index) {
+        File file = new File(request.getFolderName() + "/" + saveFile.getName() + ".tmp" + index);
+        if (file.exists() && file.isFile()) {
+            boolean delete = file.delete();
+            if (!delete) {
+                file.getAbsoluteFile().delete();
+            }
+        }
     }
 
     private void copyNewFile(Request<?> request, File saveFile, int pos) {
@@ -54,8 +65,6 @@ public class EndingDownload implements IEnding {
             fileSrc.readFully(b);
             fileCopy.seek(fileCopy.length());
             fileCopy.write(b);
-
-            fileSrc.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
