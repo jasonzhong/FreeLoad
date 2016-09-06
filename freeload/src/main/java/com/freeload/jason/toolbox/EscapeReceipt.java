@@ -84,6 +84,7 @@ public class EscapeReceipt implements Serializable, IReceipt {
             String downloadTotalSize = receiptSplitInfo[1].substring(receiptSplitInfo[1].indexOf(":") + 1, receiptSplitInfo[1].length());
             String writeFileSize = receiptSplitInfo[2].substring(receiptSplitInfo[2].indexOf(":") + 1, receiptSplitInfo[2].length());
             String writeFileTotalSize = receiptSplitInfo[3].substring(receiptSplitInfo[3].indexOf(":") + 1, receiptSplitInfo[3].length());
+            String downloadState = receiptSplitInfo[4].substring(receiptSplitInfo[4].indexOf(":") + 1, receiptSplitInfo[4].length());
 
             DownloadReceipt downloadReceipt = new DownloadReceipt();
             downloadReceipt.setDownloadedSize(Long.parseLong(downloadSize));
@@ -92,7 +93,44 @@ public class EscapeReceipt implements Serializable, IReceipt {
             downloadReceipt.setWriteFileSize(Long.parseLong(writeFileSize));
             downloadReceipt.setWriteFileTotalSize(Long.parseLong(writeFileTotalSize));
             downloadReceipt.setStartDownloadPosition(Long.parseLong(downloadPosition));
+            parseDownloadState(downloadState, downloadReceipt);
+
             mListReceipt.add(downloadReceipt);
+        }
+    }
+
+    private void parseDownloadState(String downloadState, DownloadReceipt downloadReceipt) {
+//                NONE,                   // 0
+//                GETSIZE,                // 1
+//                FAILED_GETSIZE,         // 2
+//                CREATEFILE,             // 3
+//                FAILED_CREATEFILE,      // 4
+//                QUEST_PREPARE,          // 5
+//                FAILED_QUEST_PREPARE,   // 6
+//                START,                  // 7
+//                DOWNLOAD,               // 8
+//                CANCEL,                 // 9
+//                SUCCESS_DOWNLOAD,       // 10
+//                START_COMBIN_FILE,      // 11
+//                SUCCESS_COMBIN_FILE,    // 12
+//                FAILED,                 // 13
+//                TIMEOUT,                // 14
+//                CONNWRONG               // 15
+
+        if (downloadState.toUpperCase().equals("NONE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
+        } else if (downloadState.toUpperCase().equals("GETSIZE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.GETSIZE);
+        } else if (downloadState.toUpperCase().equals("START")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.START);
+        } else if (downloadState.toUpperCase().equals("DOWNLOAD")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.DOWNLOAD);
+        } else if (downloadState.toUpperCase().equals("SUCCESS_DOWNLOAD")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.SUCCESS_DOWNLOAD);
+        } else if (downloadState.toUpperCase().equals("CANCEL")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.CANCEL);
+        } else {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
         }
     }
 

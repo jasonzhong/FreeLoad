@@ -1,41 +1,70 @@
 # Freeload 
 
-±êÇ©£ºFreeload
+æ ‡ç­¾ï¼šFreeload
 
 ---
 
-## ¸ÅÀ¨
-> Freeload ÊÇÒ»¿îÏÂÔØÒıÇæ¡£Í¨¹ıËüÄã¿ÉÒÔºÜ·½±ãµÄÌí¼ÓÏÂÔØÈÎÎñ£¬²¢ÇÒÊµÊ±»ñÈ¡ÏÂÔØ¹ı³Ì¡£¸ÃÒıÇæÇáÇÉÒ×ÓÚÎ¬»¤£¬²¢ÇÒÓµÓĞºÜºÃµÄÀ©Õ¹ĞÔ¡£ÔÚĞÂ°æµÄÒıÇæÖĞÌí¼ÓÁË¶àÏß³ÌÏÂÔØµ¥×ÊÔ´µÄÖ§³Ö£¬ÄÜ¹»Ö§³ÖË«Ïß³Ì¡¢ÈıÏß³ÌÉõÖÁËÄÏß³ÌÍ¬²½ÏÂÔØµ¥×ÊÔ´¡£Ê¹ÓÃÉÏÖ§³ÖÁ´Ê½±à³Ì£¬ÈÃ´úÂë±à¼­µÄ¸ü¼ÓºÏÀí¡£
+## æ¦‚æ‹¬
+> Freeload æ˜¯ä¸€æ¬¾ä¸‹è½½å¼•æ“ã€‚é€šè¿‡å®ƒä½ å¯ä»¥å¾ˆæ–¹ä¾¿çš„æ·»åŠ ä¸‹è½½ä»»åŠ¡ï¼Œå¹¶ä¸”å®æ—¶è·å–ä¸‹è½½è¿‡ç¨‹ã€‚è¯¥å¼•æ“è½»å·§æ˜“äºç»´æŠ¤ï¼Œå¹¶ä¸”æ‹¥æœ‰å¾ˆå¥½çš„æ‰©å±•æ€§ã€‚åœ¨æ–°ç‰ˆçš„å¼•æ“ä¸­æ·»åŠ äº†å¤šçº¿ç¨‹ä¸‹è½½å•èµ„æºçš„æ”¯æŒï¼Œèƒ½å¤Ÿæ”¯æŒåŒçº¿ç¨‹ã€ä¸‰çº¿ç¨‹ç”šè‡³å››çº¿ç¨‹åŒæ­¥ä¸‹è½½å•èµ„æºã€‚ä½¿ç”¨ä¸Šæ”¯æŒé“¾å¼ç¼–ç¨‹ï¼Œè®©ä»£ç ç¼–è¾‘æ›´åŠ åˆç†ã€‚
 
-## Ê¹ÓÃËµÃ÷
-### 1¡¢´´½¨ÏÂÔØÇëÇó¶ÓÁĞ
+## ä½¿ç”¨è¯´æ˜
+### 1ã€åˆ›å»ºä¸‹è½½è¯·æ±‚é˜Ÿåˆ—
 ```java
 private RequestQueue requestQueue = null;
 requestQueue = Freeload.newRequestQueue(context);
 ```
 
-### 2¡¢´´½¨ÏÂÔØÇëÇó²¢½«ÏÂÔØÇëÇóÌí¼Óµ½ÏÂÔØ¶ÓÁĞÀï
+### 2ã€åˆ›å»ºä¸‹è½½è¯·æ±‚å¹¶å°†ä¸‹è½½è¯·æ±‚æ·»åŠ åˆ°ä¸‹è½½é˜Ÿåˆ—é‡Œ
 ```java
-private DownloadRequestManager request = null;
+private DownloadManager request = null;
 
-// ´´½¨¼àÌı»Øµ÷
-request = DownloadRequestManager.create(id, Url)
+// åˆ›å»ºç›‘å¬å›è°ƒ
+request = DownloadManager.create()
+    .setDownloadId(1)
+    .setDownloadUrl(downloadUrl)
     .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
-    .setListener(new Response.Listener<EscapeReceipt>() {
+    .setListener(new Response.Listener<IReceipt>() {
         @Override
-        public void onProgressChange(EscapeReceipt s) {
-            System.out.println(s.toString());
+        public void onProgressChange(IReceipt s) {
+            System.out.println(s.getReceipt());
         }
     })
     .addRequestQueue(requestQueue);
 ```
 
-1. `DownloadRequestManager.create(id, Url)`´´½¨Ò»¸ö`DownloadRequestManager`¶ÔÏó£¬²ÎÊıÎªÏÂÔØµÄidºÍÏÂÔØµÄurl¡£
-2. `setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)`ÉèÖÃÏÂÔØµÄÏß³ÌÊı£¬FreeloadÏÂÔØ¿âÖ§³Ö¶àÏß³ÌÍ¬²½ÏÂÔØµ¥×ÊÔ´Óë¶à×ÊÔ´¡£³£¼ûµÄÓĞNORMAL`DownloadThreadType.`µ¥Ïß³ÌºÍ`DownloadThreadType.DOUBLETHREAD`Ë«Ïß³ÌÁ½¸ö¡£
-3. `setListener(new Response.Listener<EscapeReceipt>()`ÉèÖÃ¼àÌı¶ÔÏó£¬ÊµÊ±½«ÏÂÔØĞÅÏ¢Í¬²½´«»Ø¡£
-4. `addRequestQueue(requestQueue)`½«ÈÎÎñÌí¼Óµ½ÏÂÔØ¶ÓÁĞÀï¡£
+1. `DownloadRequestManager.create(id, Url)`åˆ›å»ºä¸€ä¸ª`DownloadRequestManager`å¯¹è±¡ï¼Œå‚æ•°ä¸ºä¸‹è½½çš„idå’Œä¸‹è½½çš„urlã€‚
+2. `setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)`è®¾ç½®ä¸‹è½½çš„çº¿ç¨‹æ•°ï¼ŒFreeloadä¸‹è½½åº“æ”¯æŒå¤šçº¿ç¨‹åŒæ­¥ä¸‹è½½å•èµ„æºä¸å¤šèµ„æºã€‚å¸¸è§çš„æœ‰NORMAL`DownloadThreadType.`å•çº¿ç¨‹å’Œ`DownloadThreadType.DOUBLETHREAD`åŒçº¿ç¨‹ä¸¤ä¸ªã€‚
+3. `setListener(new Response.Listener<IReceipt>()`è®¾ç½®ç›‘å¬å¯¹è±¡ï¼Œå®æ—¶å°†ä¸‹è½½ä¿¡æ¯åŒæ­¥ä¼ å›ã€‚
+4. `addRequestQueue(requestQueue)`å°†ä»»åŠ¡æ·»åŠ åˆ°ä¸‹è½½é˜Ÿåˆ—é‡Œã€‚
 
-### 3¡¢ÔÚAndroidManifestÀïÌí¼ÓÈ¨ÏŞÇëÇó
+### 3ã€åé¦ˆç³»ç»Ÿä½¿ç”¨
+```java
+//åé¦ˆå‡­æ¡
+private String receipt = "";
+
+@Override
+public void onProgressChange(IReceipt s) {
+    receipt = s.getReceipt();
+    System.out.println(s.getReceipt());
+}
+
+requestDoublie = DownloadManager.create()
+        .setEscapeReceipt(receipt)
+        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+        .setListener(new Response.Listener<IReceipt>() {
+            @Override
+            public void onProgressChange(IReceipt s) {
+                receipt = s.getReceipt();
+                System.out.println(s.getReceipt());
+            }
+        })
+        .addRequestQueue(requestQueue);
+```
+1. åœ¨ç›‘å¬å‡½æ•°é‡Œä¿å­˜åé¦ˆçš„å‡­æ¡ï¼Œéšæ„æ‰¾ä¸ªStringå†…å­˜ä¿å­˜å³å¯ã€‚
+2. åœ¨resumeæ“ä½œçš„æ—¶å€™ä½¿ç”¨`setEscapeReceipt(receipt)`å‡½æ•°å°†å‡­æ¡è¾“å…¥ã€‚
+3. ç³»ç»Ÿä¼šæ ¹æ®å‡­æ¡çš„å†…å®¹è‡ªè¡Œç»§ç»­ä¸‹è½½ã€‚
+
+### 4ã€åœ¨AndroidManifesté‡Œæ·»åŠ æƒé™è¯·æ±‚
 ```java
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
