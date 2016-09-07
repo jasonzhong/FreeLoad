@@ -16,10 +16,12 @@ requestQueue = Freeload.newRequestQueue(context);
 
 ### 2、创建下载请求并将下载请求添加到下载队列里
 ```java
-private DownloadRequestManager request = null;
+private DownloadManager request = null;
 
 // 创建监听回调
-request = DownloadRequestManager.create(id, Url)
+request = DownloadManager.create()
+    .setDownloadId(1)
+    .setDownloadUrl(downloadUrl)
     .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
     .setListener(new Response.Listener<IReceipt>() {
         @Override
@@ -62,7 +64,48 @@ requestDoublie = DownloadManager.create()
 2. 在resume操作的时候使用`setEscapeReceipt(receipt)`函数将凭条输入。
 3. 系统会根据凭条的内容自行继续下载。
 
-### 4、在AndroidManifest里添加权限请求
+### 4、信息回调
+```java
+public interface IReceipt {
+    public String getReceipt();
+    public DownloadReceipt.STATE getReceiptState();
+    public long getDownloadedSize();
+    public long getDownloadTotalSize();
+    public String getDownloadFilePath();
+}
+
+new Response.Listener<IReceipt>() {
+    @Override
+    public void onProgressChange(IReceipt s) {
+        receipt = s.getReceipt();
+    }
+}
+```
+通过回调接口 IReceipt 可以获取下载的信息，例如下载进度，下载的状态等。
+
+返回的状态包含：
+```java
+public static enum STATE {
+	NONE,                   // 0
+    GETSIZE,                // 1
+    FAILED_GETSIZE,         // 2
+    CREATEFILE,             // 3
+    FAILED_CREATEFILE,      // 4
+    QUEST_PREPARE,          // 5
+    FAILED_QUEST_PREPARE,   // 6
+	START,                  // 7
+	DOWNLOAD,               // 8
+    CANCEL,                 // 9
+	SUCCESS_DOWNLOAD,       // 10
+    START_COMBIN_FILE,      // 11
+    SUCCESS_COMBIN_FILE,    // 12
+	FAILED,                 // 13
+	TIMEOUT,                // 14
+    CONNWRONG               // 15
+}
+```
+
+### 5、在AndroidManifest里添加权限请求
 ```java
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
@@ -71,3 +114,7 @@ requestDoublie = DownloadManager.create()
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 ```
+
+### 6、逻辑详解
+- 目前下载的逻辑会在文件下载完合并成最后文件前将同名文件删除。并在合并完成后将临时文件删除。
+- DownloadManager 里面封装了所有对外的下载任务接口，可以通过接口来配置任务的信息。
