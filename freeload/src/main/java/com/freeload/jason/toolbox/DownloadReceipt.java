@@ -1,5 +1,7 @@
 package com.freeload.jason.toolbox;
 
+import android.text.TextUtils;
+
 import java.io.Serializable;
 
 public class DownloadReceipt implements Serializable {
@@ -36,6 +38,8 @@ public class DownloadReceipt implements Serializable {
     private Long mWriteFileSize = 0l;
     //文件总大小
     private Long mWriteFileTotalSize = 0l;
+    //文件路径
+    private String mDownloadFilePath = "";
 
     public DownloadReceipt() {
         mState = STATE.NONE;
@@ -101,6 +105,17 @@ public class DownloadReceipt implements Serializable {
 
     public long getDownloadTotalSize() {
         return mTotalDownloadSize;
+    }
+
+    public void setDownloadFilePath(String downloadFilePath) {
+        if (TextUtils.isEmpty(downloadFilePath)) {
+            return;
+        }
+        mDownloadFilePath = downloadFilePath;
+    }
+
+    public String getDownloadFilePath() {
+        return mDownloadFilePath;
     }
 
     @Override

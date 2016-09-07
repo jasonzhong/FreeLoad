@@ -42,6 +42,11 @@ public class DownloadManager {
         return this;
     }
 
+    public DownloadManager setDownloadedFileFolder(String downloadedFileFolder) {
+        this.mEssentialInfo.mDownloadedFileFolder = downloadedFileFolder;
+        return this;
+    }
+
     public DownloadManager setFileName(String fileName) {
         this.mEssentialInfo.mFileName = fileName;
         return this;
@@ -98,6 +103,7 @@ public class DownloadManager {
         return DownloadRequest.create()
                 .setDownloadId(this.mEssentialInfo.mId)
                 .setDownloadUrl(this.mEssentialInfo.mUrl)
+                .setDownloadedFileFolder(this.mEssentialInfo.mDownloadedFileFolder)
                 .setThreadPositon(position)
                 .setReceipt(mEssentialInfo.mCustomerReceipt.getDownloadReceipt(position))
                 .setDownloadFileName(this.mEssentialInfo.mFileName)
@@ -126,6 +132,7 @@ public class DownloadManager {
     private DownloadRequest createFileRequest(int threadType) {
         DownloadRequest downloadRequest = mDownloadRequestList.get(0);
         return DownloadRequest.create()
+                .setDownloadedFileFolder(this.mEssentialInfo.mDownloadedFileFolder)
                 .setDownloadFileName(downloadRequest.getFileName())
                 .setDownloadThreadType(threadType)
                 .setListener(new Response.Listener<DownloadReceipt>() {

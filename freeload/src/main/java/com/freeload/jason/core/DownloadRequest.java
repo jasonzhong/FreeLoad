@@ -34,6 +34,11 @@ public class DownloadRequest extends Request<DownloadReceipt> {
         return this;
     }
 
+    public DownloadRequest setDownloadedFileFolder(String downloadedFileFolder) {
+        setFileFolder(downloadedFileFolder);
+        return this;
+    }
+
     public DownloadRequest setReceipt(DownloadReceipt downloadReceipt) {
         if (downloadReceipt != null) {
             setDownloadReceipt(downloadReceipt);

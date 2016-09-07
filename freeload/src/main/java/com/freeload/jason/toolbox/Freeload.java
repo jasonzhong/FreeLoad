@@ -8,7 +8,6 @@ import com.freeload.jason.core.PrepareDownload;
 import com.freeload.jason.core.RequestQueue;
 
 public class Freeload {
-
     public static RequestQueue newRequestQueue(Context context) {
         BasicDownload basicDownload = new BasicDownload();
         PrepareDownload prepareDownload = new PrepareDownload();

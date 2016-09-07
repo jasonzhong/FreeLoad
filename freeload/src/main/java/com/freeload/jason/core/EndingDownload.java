@@ -11,7 +11,7 @@ public class EndingDownload implements IEnding {
 
     @Override
     public boolean endingPerform(Request<?> request, ResponseDelivery delivery) {
-        postResponse(delivery, request, DownloadReceipt.STATE.START_COMBIN_FILE);
+        postResponse(delivery, request, DownloadReceipt.STATE.START_COMBIN_FILE, null);
 
         int size = 0;
         switch (request.getThreadType()) {
@@ -30,15 +30,29 @@ public class EndingDownload implements IEnding {
         int last = fileName.indexOf(".tmp");
         fileName = fileName.substring(0, last);
         File saveFile = new File(request.getFolderName(), fileName);
+        deleteCurrentSameFile(saveFile);
 
         for (int n = 1; n <= size; ++n) {
             copyNewFile(request, saveFile, n);
             deleteTempFile(request, saveFile, n);
         }
 
-        postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE);
+        postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE, saveFile.getPath());
 
         return true;
+    }
+
+    private void deleteCurrentSameFile(File file) {
+        if (file == null) {
+            return;
+        }
+
+        if (file.exists() && file.isFile()) {
+            boolean delete = file.delete();
+            if (!delete) {
+                file.getAbsoluteFile().delete();
+            }
+        }
     }
 
     private void deleteTempFile(Request<?> request, File saveFile, int index) {
@@ -84,12 +98,13 @@ public class EndingDownload implements IEnding {
         }
     }
 
-    private void postResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state) {
+    private void postResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state, String filePath) {
         if (delivery == null) {
             return;
         }
         DownloadReceipt downloadReceipt = new DownloadReceipt();
         downloadReceipt.setDownloadPosition(request.getThreadPosition());
+        downloadReceipt.setDownloadFilePath(filePath);
         downloadReceipt.setDownloadState(state);
 
         delivery.postResponse(request, Response.success(downloadReceipt));

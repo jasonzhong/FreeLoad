@@ -15,6 +15,9 @@ public class EssentialInfo {
     /** download file name */
     public String mFileName = "";
 
+    /** downloaded file store path */
+    public String mDownloadedFileFolder = "";
+
     /** download file thread setting */
     public int mThreadType = DownloadThreadType.NORMAL;
 

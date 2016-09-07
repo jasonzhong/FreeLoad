@@ -33,7 +33,7 @@ public class FileDispatcher extends Thread {
 
     @Override
     public void run() {
-        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         while (true) {
             Request<?> request;
             try {

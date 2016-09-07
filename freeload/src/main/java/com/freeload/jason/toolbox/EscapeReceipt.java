@@ -38,12 +38,15 @@ public class EscapeReceipt implements Serializable, IReceipt {
 
         long fileSize = 0;
         long fileTotalSize = 0;
+
+        String path = "";
         int pos = 0;
         for (; pos < mListReceipt.size(); ++pos) {
             DownloadReceipt localReceipt = mListReceipt.get(pos);
             if (localReceipt.getDownloadPosition() == receipt.getDownloadPosition()) {
                 size = localReceipt.getDownloadedSize();
                 totalSize = localReceipt.getDownloadTotalSize();
+                path = localReceipt.getDownloadFilePath();
 
                 fileSize = localReceipt.getWriteFileSize();
                 fileTotalSize = localReceipt.getDownloadTotalSize();
@@ -53,6 +56,7 @@ public class EscapeReceipt implements Serializable, IReceipt {
                     receipt.setTotalDownloadSize(totalSize);
                     receipt.setWriteFileSize(fileSize);
                     receipt.setWriteFileTotalSize(fileTotalSize);
+                    receipt.setDownloadFilePath(path);
                 }
                 mListReceipt.remove(pos);
                 mListReceipt.add(receipt);
@@ -129,6 +133,10 @@ public class EscapeReceipt implements Serializable, IReceipt {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.SUCCESS_DOWNLOAD);
         } else if (downloadState.toUpperCase().equals("CANCEL")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.CANCEL);
+        } else if (downloadState.toUpperCase().equals("START_COMBIN_FILE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.START_COMBIN_FILE);
+        } else if (downloadState.toUpperCase().equals("SUCCESS_COMBIN_FILE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.SUCCESS_COMBIN_FILE);
         } else {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
         }
@@ -144,7 +152,8 @@ public class EscapeReceipt implements Serializable, IReceipt {
                     ",downloadTotalSize:" + mListReceipt.get(i).getDownloadTotalSize() +
                     ",mWriteFileSize:" + mListReceipt.get(i).getWriteFileSize() +
                     ",mWriteFileTotalSize:" + mListReceipt.get(i).getWriteFileTotalSize() +
-                    ",downloadState:" + mListReceipt.get(i).getDownloadState() + ";";
+                    ",downloadState:" + mListReceipt.get(i).getDownloadState() +
+                    ",path:" + mListReceipt.get(i).getDownloadFilePath() + ";";
         }
         return str;
     }
@@ -152,5 +161,37 @@ public class EscapeReceipt implements Serializable, IReceipt {
     @Override
     public String getReceipt() {
         return toString();
+    }
+
+    @Override
+    public DownloadReceipt.STATE getReceiptState() {
+        if (mListReceipt.size() <= 0) {
+            return DownloadReceipt.STATE.NONE;
+        }
+        return mListReceipt.get(0).getDownloadState();
+    }
+
+    @Override
+    public long getDownloadedSize() {
+        if (mListReceipt.size() <= 0) {
+            return 0;
+        }
+        return mListReceipt.get(0).getDownloadedSize();
+    }
+
+    @Override
+    public long getDownloadTotalSize() {
+        if (mListReceipt.size() <= 0) {
+            return 0;
+        }
+        return mListReceipt.get(0).getDownloadTotalSize();
+    }
+
+    @Override
+    public String getDownloadFilePath() {
+        if (mListReceipt.size() <= 0) {
+            return "";
+        }
+        return mListReceipt.get(0).getDownloadFilePath();
     }
 }
