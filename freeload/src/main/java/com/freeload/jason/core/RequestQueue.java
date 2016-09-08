@@ -52,7 +52,8 @@ public class RequestQueue {
         this(basicDownload, prepareDownload, endingDownload, threadPoolSize, filePoolSize, new ExecutorDelivery(new Handler(Looper.getMainLooper())));
     }
 
-    public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload, int threadPoolSize, int filePoolSize, ResponseDelivery delivery) {
+    public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload,
+                        int threadPoolSize, int filePoolSize, ResponseDelivery delivery) {
         this.mDownload = basicDownload;
         this.mPrepare = prepareDownload;
         this.mEnding = endingDownload;

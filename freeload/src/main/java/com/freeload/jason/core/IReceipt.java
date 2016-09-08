@@ -10,6 +10,8 @@ public interface IReceipt {
 
     public long getDownloadedSize();
 
+    public long getDownloadedSize(int pos);
+
     public long getDownloadTotalSize();
 
     public String getDownloadFilePath();

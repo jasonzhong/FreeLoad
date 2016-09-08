@@ -24,8 +24,9 @@ public class PrepareDownload implements Prepare {
             postResponse(delivery, request, DownloadReceipt.STATE.FAILED_GETSIZE);
             return false;
         }
-        request.setDownloadFileSize(downloadFileSize);
+        postPepareResponse(delivery, request, DownloadReceipt.STATE.GETSIZE, downloadFileSize);
 
+        request.setDownloadFileSize(downloadFileSize);
         postResponse(delivery, request, DownloadReceipt.STATE.QUEST_PREPARE);
         boolean bParse = parseStoragePages(request);
         if (!bParse) {
@@ -38,6 +39,7 @@ public class PrepareDownload implements Prepare {
             postResponse(delivery, request, DownloadReceipt.STATE.FAILED_CREATEFILE);
             return false;
         }
+        postResponse(delivery, request, DownloadReceipt.STATE.PEPARE_FINISH);
 
         return true;
     }
@@ -136,7 +138,19 @@ public class PrepareDownload implements Prepare {
         downloadReceipt.setDownloadPosition(request.getThreadPosition());
         downloadReceipt.setDownloadState(state);
 
-        delivery.postResponse(request, Response.success(downloadReceipt));
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
+    }
+
+    private void postPepareResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state, long fileSize) {
+        if (delivery == null) {
+            return;
+        }
+        DownloadReceipt downloadReceipt = new DownloadReceipt();
+        downloadReceipt.setDownloadPosition(request.getThreadPosition());
+        downloadReceipt.setDownloadState(state);
+        downloadReceipt.setDownloadedSize(fileSize);
+
+        delivery.postDownloadPepare(request, Response.success(downloadReceipt));
     }
 
     private boolean createFile(Request<?> request) {

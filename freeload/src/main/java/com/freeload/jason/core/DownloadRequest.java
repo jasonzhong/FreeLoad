@@ -7,6 +7,7 @@ import com.freeload.jason.toolbox.DownloadReceipt;
 public class DownloadRequest extends Request<DownloadReceipt> {
 
     private Response.Listener<DownloadReceipt> mListener;
+    private Response.PepareListener<DownloadReceipt> mPepareListener;
 
     public static DownloadRequest create() {
         return new DownloadRequest();
@@ -21,6 +22,11 @@ public class DownloadRequest extends Request<DownloadReceipt> {
 
     public DownloadRequest setListener(Response.Listener<DownloadReceipt> listener) {
         this.mListener = listener;
+        return this;
+    }
+
+    public DownloadRequest setPepareListener(Response.PepareListener<DownloadReceipt> listener) {
+        this.mPepareListener = listener;
         return this;
     }
 
@@ -64,6 +70,13 @@ public class DownloadRequest extends Request<DownloadReceipt> {
     public void deliverDownloadProgress(DownloadReceipt response) {
         if (this.mListener != null) {
             this.mListener.onProgressChange(response);
+        }
+    }
+
+    @Override
+    public void deliverDownloadPepare(DownloadReceipt response) {
+        if (this.mPepareListener != null) {
+            this.mPepareListener.onProgressPepare(response);
         }
     }
 }

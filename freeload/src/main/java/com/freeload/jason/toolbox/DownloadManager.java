@@ -32,6 +32,11 @@ public class DownloadManager {
         return this;
     }
 
+    public DownloadManager setPepareListener(Response.PepareListener<IReceipt> listener) {
+        this.mEssentialInfo.mPepareListener = listener;
+        return this;
+    }
+
     public DownloadManager setDownloadId(int id) {
         this.mEssentialInfo.mId = id;
         return this;
@@ -108,6 +113,14 @@ public class DownloadManager {
                 .setReceipt(mEssentialInfo.mCustomerReceipt.getDownloadReceipt(position))
                 .setDownloadFileName(this.mEssentialInfo.mFileName)
                 .setDownloadThreadType(threadType)
+                .setPepareListener(new Response.PepareListener<DownloadReceipt>() {
+                    @Override
+                    public void onProgressPepare(DownloadReceipt response) {
+                        EscapeReceipt escapeReceipt = new EscapeReceipt();
+                        escapeReceipt.setDownloadReceipt(response);
+                        mEssentialInfo.mPepareListener.onProgressPepare(escapeReceipt);
+                    }
+                })
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override
                     public void onProgressChange(DownloadReceipt response) {

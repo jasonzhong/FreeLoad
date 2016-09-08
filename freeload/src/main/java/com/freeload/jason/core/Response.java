@@ -8,6 +8,12 @@ public class Response<T> {
         public void onProgressChange(T response);
     }
 
+    /** Callback interface for delivering parsed pepare responses. */
+    public interface PepareListener<T> {
+        /** Called a download response pepare. */
+        public void onProgressPepare(T response);
+    }
+
     /** Returns a successful response containing the parsed result. */
     public static <T> Response<T> success(T result) {
         return new Response<T>(result);

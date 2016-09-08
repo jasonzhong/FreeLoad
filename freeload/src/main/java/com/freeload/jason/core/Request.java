@@ -312,6 +312,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         }
     }
 
+    /** Delivers when download request pepare to the Listener. */
+    public abstract void deliverDownloadPepare(T response);
+
     /** Delivers when download request progress change to the Listener. */
     public abstract void deliverDownloadProgress(T response);
 }

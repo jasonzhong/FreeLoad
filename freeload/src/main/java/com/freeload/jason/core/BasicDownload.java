@@ -140,7 +140,7 @@ public class BasicDownload implements INetwork {
         }
         DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
                 downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
-        delivery.postResponse(request, Response.success(downloadReceipt));
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 
     private void postProgress(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
@@ -151,7 +151,7 @@ public class BasicDownload implements INetwork {
         }
         DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
                 downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
-        delivery.postResponse(request, Response.success(downloadReceipt));
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 
     private DownloadReceipt getDownloadReceipt(Request<?> request, DownloadReceipt.STATE state,

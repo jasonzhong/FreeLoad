@@ -21,6 +21,8 @@ public class MainActivity extends Activity {
     private RequestQueue requestQueue = null;
     private DownloadManager requestDoublie = null;
     private DownloadManager requestNormal = null;
+    private DownloadManager requestNormal1 = null;
+    private DownloadManager requestNormal2 = null;
 
     private Button mStart = null;
     private Button mEnd = null;
@@ -30,9 +32,24 @@ public class MainActivity extends Activity {
     private Button mEnd1 = null;
     private Button mResume1 = null;
 
+    private Button mStart2 = null;
+    private Button mEnd2 = null;
+    private Button mResume2 = null;
+
+    private Button mStart3 = null;
+    private Button mEnd3 = null;
+    private Button mResume3 = null;
+
+    private Button mStart4 = null;
+    private Button mEnd4 = null;
+    private Button mResume4 = null;
+
     private String receipt = "";
 
-    private String downloadUrl = "http://dl.cm.ksmobile.com/static/res/4d/5a/cm_security_cn.apk";
+    private String downloadUrl = "http://admin.doyo.cn/mobile/apk/5e/11d4289a4e2e03f78fd57f4509f219.apk";
+    private String downloadUrl1 = "http://a5.pc6.com/xyb3/yamuyingyu.apk";
+    private String downloadUrl2 = "http://admin.doyo.cn/mobile/apk/e1/fd44006e9d4fe48948313d7d0be6d9.apk";
+    private String downloadUrl3 = "http://admin.doyo.cn/mobile/apk/f9/a4224b48cdd3f50f47b2f445f48f5f.apk";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,17 +105,29 @@ public class MainActivity extends Activity {
             }
         });
 
-        mStart1 = (Button) findViewById(R.id.start1);
+        mStart1 = (Button) findViewById(R.id.start2);
         mStart1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "download";
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl)
-                        .setDownloadedFileFolder(mDownloadedFileFolder)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
                         .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+                            @Override
+                            public void onProgressPepare(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                long size = s.getDownloadedSize();
+                                System.out.println(receipt);
+                                System.out.println("xxxx: state:" + i + " path:" + path + " size:" + size);
+                            }
+                        })
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {
@@ -106,14 +135,133 @@ public class MainActivity extends Activity {
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
-                                System.out.println("xxxx: state:" + i + " path:" + path);
+                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    System.out.println("xxxx: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                }
                             }
                         })
                         .addRequestQueue(requestQueue);
             }
         });
 
-        mEnd1 = (Button) findViewById(R.id.stop1);
+        mStart2 = (Button) findViewById(R.id.start3);
+        mStart2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+                requestNormal = DownloadManager.create()
+                        .setDownloadId(1)
+                        .setDownloadUrl(downloadUrl1)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+                            @Override
+                            public void onProgressPepare(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                long size = s.getDownloadedSize();
+                                System.out.println(receipt);
+                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
+                            }
+                        })
+                        .setListener(new Response.Listener<IReceipt>() {
+                            @Override
+                            public void onProgressChange(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                }
+                            }
+                        })
+                        .addRequestQueue(requestQueue);
+            }
+        });
+
+        mStart3 = (Button) findViewById(R.id.start4);
+        mStart3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+                requestNormal = DownloadManager.create()
+                        .setDownloadId(1)
+                        .setDownloadUrl(downloadUrl2)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+                            @Override
+                            public void onProgressPepare(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                long size = s.getDownloadedSize();
+                                System.out.println(receipt);
+                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
+                            }
+                        })
+                        .setListener(new Response.Listener<IReceipt>() {
+                            @Override
+                            public void onProgressChange(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                }
+                            }
+                        })
+                        .addRequestQueue(requestQueue);
+            }
+        });
+
+        mStart4 = (Button) findViewById(R.id.start5);
+        mStart4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+                requestNormal = DownloadManager.create()
+                        .setDownloadId(1)
+                        .setDownloadUrl(downloadUrl3)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+                            @Override
+                            public void onProgressPepare(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                long size = s.getDownloadedSize();
+                                System.out.println(receipt);
+                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
+                            }
+                        })
+                        .setListener(new Response.Listener<IReceipt>() {
+                            @Override
+                            public void onProgressChange(IReceipt s) {
+                                receipt = s.getReceipt();
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                }
+                            }
+                        })
+                        .addRequestQueue(requestQueue);
+            }
+        });
+
+        mEnd1 = (Button) findViewById(R.id.stop2);
         mEnd1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,7 +269,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        mResume1 = (Button) findViewById(R.id.resume1);
+        mResume1 = (Button) findViewById(R.id.resume2);
         mResume1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -24,20 +24,20 @@ public class ExecutorDelivery implements ResponseDelivery {
     }
 
     @Override
-    public void postResponse(Request<?> request, Response<?> response) {
-        postDownloadProgress(request, response, 0, 0);
+    public void postDownloadProgress(Request<?> request, Response<?> response) {
+        mResponsePoster.execute(new ResponseProgressDeliveryRunnable(request, response));
     }
 
     @Override
-    public void postDownloadProgress(Request<?> request, Response<?> response, long fileSize, long downloadedSize) {
-        mResponsePoster.execute(new ResponseProgressDeliveryRunnable(request, response, fileSize, downloadedSize));
+    public void postDownloadPepare(Request<?> request, Response<?> response) {
+        mResponsePoster.execute(new ResponsePepareDeliveryRunnable(request, response));
     }
 
     private class ResponseProgressDeliveryRunnable implements Runnable {
         private final Request mRequest;
         private final Response mResponse;
 
-        private ResponseProgressDeliveryRunnable(Request request, Response response, long mFileSize, long mDownloadedSize) {
+        private ResponseProgressDeliveryRunnable(Request request, Response response) {
             this.mRequest = request;
             this.mResponse = response;
         }
@@ -50,6 +50,26 @@ public class ExecutorDelivery implements ResponseDelivery {
             }
 
             mRequest.deliverDownloadProgress(mResponse.result);
+        }
+    }
+
+    private class ResponsePepareDeliveryRunnable implements Runnable {
+        private final Request mRequest;
+        private final Response mResponse;
+
+        private ResponsePepareDeliveryRunnable(Request request, Response response) {
+            this.mRequest = request;
+            this.mResponse = response;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void run() {
+            if (mRequest == null || mResponse == null) {
+                return;
+            }
+
+            mRequest.deliverDownloadPepare(mResponse.result);
         }
     }
 }

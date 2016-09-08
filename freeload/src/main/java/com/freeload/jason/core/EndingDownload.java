@@ -107,6 +107,6 @@ public class EndingDownload implements IEnding {
         downloadReceipt.setDownloadFilePath(filePath);
         downloadReceipt.setDownloadState(state);
 
-        delivery.postResponse(request, Response.success(downloadReceipt));
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 }

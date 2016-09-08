@@ -24,6 +24,9 @@ public class EssentialInfo {
     /** download file customer listener */
     public Response.Listener<IReceipt> mListener = null;
 
+    /** download file customer pepare listener */
+    public Response.PepareListener<IReceipt> mPepareListener = null;
+
     /** download file receipt */
     public EscapeReceipt mCustomerReceipt = new EscapeReceipt();
 }
