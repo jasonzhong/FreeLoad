@@ -23,6 +23,13 @@ request = DownloadManager.create()
     .setDownloadId(1)
     .setDownloadUrl(downloadUrl)
     .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+    .setPepareListener(new Response.PepareListener<IReceipt>() {
+        @Override
+        public void onProgressPepare(IReceipt s) {
+            receipt = s.getReceipt();
+            System.out.println(receipt);
+        }
+    })
     .setListener(new Response.Listener<IReceipt>() {
         @Override
         public void onProgressChange(IReceipt s) {
@@ -51,6 +58,13 @@ public void onProgressChange(IReceipt s) {
 requestDoublie = DownloadManager.create()
         .setEscapeReceipt(receipt)
         .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+        .setPepareListener(new Response.PepareListener<IReceipt>() {
+            @Override
+            public void onProgressPepare(IReceipt s) {
+                receipt = s.getReceipt();
+                System.out.println(receipt);
+            }
+        })
         .setListener(new Response.Listener<IReceipt>() {
             @Override
             public void onProgressChange(IReceipt s) {
@@ -80,8 +94,19 @@ new Response.Listener<IReceipt>() {
         receipt = s.getReceipt();
     }
 }
+
+new Response.PepareListener<IReceipt>() {
+    @Override
+    public void onProgressPepare(IReceipt s) {
+        receipt = s.getReceipt();
+        System.out.println(receipt);
+    }
+}
 ```
 通过回调接口 IReceipt 可以获取下载的信息，例如下载进度，下载的状态等。
+
+`Response.PepareListener` 接口可以获取在下载前的文件信息，例如大小，来判断是否要继续下。
+`Response.Listener` 接口可以获取下载过程的进度。
 
 返回的状态包含：
 ```java
