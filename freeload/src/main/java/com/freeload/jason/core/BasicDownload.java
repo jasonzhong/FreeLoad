@@ -105,7 +105,16 @@ public class BasicDownload implements INetwork {
         inStream = http.getInputStream();
 
         while (true) {
-            offset = inStream.read(buffer, 0, CONTAINER_SIZE);
+
+            try {
+                offset = inStream.read(buffer, 0, CONTAINER_SIZE);
+            } catch (IOException io) {
+                postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
+                        startDownloadPos + writeFileLength, endDownloadPos,
+                        writeFileLength, fileEndPos);
+                break;
+            }
+
             if (offset == -1) {
                 postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
                         startDownloadPos + writeFileLength, endDownloadPos,

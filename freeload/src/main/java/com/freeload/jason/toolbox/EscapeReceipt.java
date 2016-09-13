@@ -120,11 +120,24 @@ public class EscapeReceipt implements Serializable, IReceipt {
 //                FAILED,                 // 13
 //                TIMEOUT,                // 14
 //                CONNWRONG               // 15
+//                PEPARE_FINISH,          // 16
+//                FAILED_GET_STREAM       // 17
+
 
         if (downloadState.toUpperCase().equals("NONE")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
         } else if (downloadState.toUpperCase().equals("GETSIZE")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.GETSIZE);
+        } else if (downloadState.toUpperCase().equals("FAILED_GETSIZE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.FAILED_GETSIZE);
+        } else if (downloadState.toUpperCase().equals("CREATEFILE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.CREATEFILE);
+        } else if (downloadState.toUpperCase().equals("FAILED_CREATEFILE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.FAILED_CREATEFILE);
+        } else if (downloadState.toUpperCase().equals("QUEST_PREPARE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.QUEST_PREPARE);
+        } else if (downloadState.toUpperCase().equals("FAILED_QUEST_PREPARE")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.FAILED_QUEST_PREPARE);
         } else if (downloadState.toUpperCase().equals("START")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.START);
         } else if (downloadState.toUpperCase().equals("DOWNLOAD")) {
@@ -137,6 +150,14 @@ public class EscapeReceipt implements Serializable, IReceipt {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.START_COMBIN_FILE);
         } else if (downloadState.toUpperCase().equals("SUCCESS_COMBIN_FILE")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.SUCCESS_COMBIN_FILE);
+        } else if (downloadState.toUpperCase().equals("PEPARE_FINISH")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.PEPARE_FINISH);
+        } else if (downloadState.toUpperCase().equals("FAILED_GET_STREAM")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.FAILED_GET_STREAM);
+        } else if (downloadState.toUpperCase().equals("TIMEOUT")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.TIMEOUT);
+        } else if (downloadState.toUpperCase().equals("CONNWRONG")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.CONNWRONG);
         } else {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
         }

@@ -132,6 +132,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt = s.getReceipt();
+                                System.out.println("xxxx:" + receipt);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
@@ -149,11 +150,11 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl1)
-//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+                        .setDownloadedFileFolder(mDownloadedFileFolder)
                         .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setPepareListener(new Response.PepareListener<IReceipt>() {
                             @Override
@@ -171,6 +172,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt = s.getReceipt();
+                                System.out.println("xxxx:" + receipt);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
@@ -188,11 +190,11 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
                         .setDownloadUrl(downloadUrl2)
-//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+                        .setDownloadedFileFolder(mDownloadedFileFolder)
                         .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setPepareListener(new Response.PepareListener<IReceipt>() {
                             @Override
@@ -210,6 +212,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt = s.getReceipt();
+                                System.out.println("xxxx:" + receipt);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
@@ -249,6 +252,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt = s.getReceipt();
+                                System.out.println("xxxx:" + receipt);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();

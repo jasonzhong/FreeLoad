@@ -20,10 +20,11 @@ public class DownloadReceipt implements Serializable {
 		SUCCESS_DOWNLOAD,       // 10
         START_COMBIN_FILE,      // 11
         SUCCESS_COMBIN_FILE,    // 12
-		FAILED,                 // 13
+		FAILED_COMBIN_FILE,     // 13
 		TIMEOUT,                // 14
         CONNWRONG,              // 15
-        PEPARE_FINISH           // 16
+        PEPARE_FINISH,          // 16
+        FAILED_GET_STREAM       // 17
 	}
 
     private int mPosition = 0;

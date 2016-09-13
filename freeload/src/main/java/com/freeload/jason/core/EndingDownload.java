@@ -37,8 +37,12 @@ public class EndingDownload implements IEnding {
             deleteTempFile(request, saveFile, n);
         }
 
-        postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE, saveFile.getPath());
+        if (!saveFile.exists()) {
+            postResponse(delivery, request, DownloadReceipt.STATE.FAILED_COMBIN_FILE, saveFile.getPath());
+            return false;
+        }
 
+        postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE, saveFile.getPath());
         return true;
     }
 

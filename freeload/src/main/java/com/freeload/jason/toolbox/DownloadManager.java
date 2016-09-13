@@ -118,7 +118,9 @@ public class DownloadManager {
                     public void onProgressPepare(DownloadReceipt response) {
                         EscapeReceipt escapeReceipt = new EscapeReceipt();
                         escapeReceipt.setDownloadReceipt(response);
-                        mEssentialInfo.mPepareListener.onProgressPepare(escapeReceipt);
+                        if (mEssentialInfo.mPepareListener != null) {
+                            mEssentialInfo.mPepareListener.onProgressPepare(escapeReceipt);
+                        }
                     }
                 })
                 .setListener(new Response.Listener<DownloadReceipt>() {
@@ -129,7 +131,10 @@ public class DownloadManager {
                         }
                         EscapeReceipt escapeReceipt = new EscapeReceipt();
                         escapeReceipt.setDownloadReceipt(response);
-                        mEssentialInfo.mListener.onProgressChange(escapeReceipt);
+
+                        if (mEssentialInfo.mListener != null) {
+                            mEssentialInfo.mListener.onProgressChange(escapeReceipt);
+                        }
 
                         if (mThreadCount == mSuccessCount) {
                             addEndingRequestQueue();

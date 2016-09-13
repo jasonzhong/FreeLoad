@@ -127,6 +127,8 @@ public static enum STATE {
 	FAILED,                 // 13
 	TIMEOUT,                // 14
     CONNWRONG               // 15
+    PEPARE_FINISH,          // 16
+    FAILED_GET_STREAM       // 17
 }
 ```
 
