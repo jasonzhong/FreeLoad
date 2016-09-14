@@ -111,14 +111,27 @@ public class BasicDownload implements INetwork {
             } catch (IOException io) {
                 postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
                         startDownloadPos + writeFileLength, endDownloadPos,
-                        writeFileLength, fileEndPos);
+                        startDownloadPos + writeFileLength, fileEndPos);
+                if (threadfile != null) {
+                    threadfile.close();
+                }
+                if (inStream != null) {
+                    inStream.close();
+                }
                 break;
             }
 
             if (offset == -1) {
                 postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
                         startDownloadPos + writeFileLength, endDownloadPos,
-                        writeFileLength, fileEndPos);
+                        startDownloadPos + writeFileLength, fileEndPos);
+
+                if (threadfile != null) {
+                    threadfile.close();
+                }
+                if (inStream != null) {
+                    inStream.close();
+                }
                 break;
             }
 
@@ -127,18 +140,28 @@ public class BasicDownload implements INetwork {
 
             postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
                     startDownloadPos + writeFileLength, endDownloadPos,
-                    writeFileLength, fileEndPos);
+                    startDownloadPos + writeFileLength, fileEndPos);
 
             if (request.isCanceled()) {
                 postResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
                         startDownloadPos + writeFileLength, endDownloadPos,
-                        writeFileLength, fileEndPos);
+                        startDownloadPos + writeFileLength, fileEndPos);
+                if (threadfile != null) {
+                    threadfile.close();
+                }
+                if (inStream != null) {
+                    inStream.close();
+                }
                 break;
             }
         }
 
-        threadfile.close();
-        inStream.close();
+        if (threadfile != null) {
+            threadfile.close();
+        }
+        if (inStream != null) {
+            inStream.close();
+        }
     }
 
     private void postResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,

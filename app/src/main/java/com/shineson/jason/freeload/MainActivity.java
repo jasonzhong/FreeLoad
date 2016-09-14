@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
     private Button mResume4 = null;
 
     private String receipt = "";
+    private String receipt1 = "";
 
     private String downloadUrl = "http://admin.doyo.cn/mobile/apk/5e/11d4289a4e2e03f78fd57f4509f219.apk";
     private String downloadUrl1 = "http://a5.pc6.com/xyb3/yamuyingyu.apk";
@@ -56,7 +57,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        requestQueue = Freeload.newRequestQueue(this);
+        requestQueue = Freeload.newRequestQueue();
 
         mStart = (Button) findViewById(R.id.start);
         mStart.setOnClickListener(new View.OnClickListener() {
@@ -105,34 +106,27 @@ public class MainActivity extends Activity {
             }
         });
 
-        mStart1 = (Button) findViewById(R.id.start2);
-        mStart1.setOnClickListener(new View.OnClickListener() {
+        mStart2 = (Button) findViewById(R.id.start2);
+        mStart2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl)
-//                        .setDownloadedFileFolder(mDownloadedFileFolder)
-                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setDownloadUrl(downloadUrl1)
+                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
                         .setPepareListener(new Response.PepareListener<IReceipt>() {
                             @Override
                             public void onProgressPepare(IReceipt s) {
-                                receipt = s.getReceipt();
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                long size = s.getDownloadedSize();
-                                System.out.println(receipt);
-                                System.out.println("xxxx: state:" + i + " path:" + path + " size:" + size);
+                                receipt1 = s.getReceipt();
+                                System.out.println(receipt1);
                             }
                         })
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {
-                                receipt = s.getReceipt();
-                                System.out.println("xxxx:" + receipt);
+                                receipt1 = s.getReceipt();
+                                System.out.println("xxxx:" + receipt1);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
@@ -145,153 +139,240 @@ public class MainActivity extends Activity {
             }
         });
 
-        mStart2 = (Button) findViewById(R.id.start3);
-        mStart2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
-                requestNormal = DownloadManager.create()
-                        .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl1)
-                        .setDownloadedFileFolder(mDownloadedFileFolder)
-                        .setDownloadThreadType(DownloadThreadType.NORMAL)
-                        .setPepareListener(new Response.PepareListener<IReceipt>() {
-                            @Override
-                            public void onProgressPepare(IReceipt s) {
-                                receipt = s.getReceipt();
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                long size = s.getDownloadedSize();
-                                System.out.println(receipt);
-                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
-                            }
-                        })
-                        .setListener(new Response.Listener<IReceipt>() {
-                            @Override
-                            public void onProgressChange(IReceipt s) {
-                                receipt = s.getReceipt();
-                                System.out.println("xxxx:" + receipt);
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
-                                }
-                            }
-                        })
-                        .addRequestQueue(requestQueue);
-            }
-        });
-
-        mStart3 = (Button) findViewById(R.id.start4);
-        mStart3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
-                requestNormal = DownloadManager.create()
-                        .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl2)
-                        .setDownloadedFileFolder(mDownloadedFileFolder)
-                        .setDownloadThreadType(DownloadThreadType.NORMAL)
-                        .setPepareListener(new Response.PepareListener<IReceipt>() {
-                            @Override
-                            public void onProgressPepare(IReceipt s) {
-                                receipt = s.getReceipt();
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                long size = s.getDownloadedSize();
-                                System.out.println(receipt);
-                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
-                            }
-                        })
-                        .setListener(new Response.Listener<IReceipt>() {
-                            @Override
-                            public void onProgressChange(IReceipt s) {
-                                receipt = s.getReceipt();
-                                System.out.println("xxxx:" + receipt);
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
-                                }
-                            }
-                        })
-                        .addRequestQueue(requestQueue);
-            }
-        });
-
-        mStart4 = (Button) findViewById(R.id.start5);
-        mStart4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
-                requestNormal = DownloadManager.create()
-                        .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl3)
-//                        .setDownloadedFileFolder(mDownloadedFileFolder)
-                        .setDownloadThreadType(DownloadThreadType.NORMAL)
-                        .setPepareListener(new Response.PepareListener<IReceipt>() {
-                            @Override
-                            public void onProgressPepare(IReceipt s) {
-                                receipt = s.getReceipt();
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                long size = s.getDownloadedSize();
-                                System.out.println(receipt);
-                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
-                            }
-                        })
-                        .setListener(new Response.Listener<IReceipt>() {
-                            @Override
-                            public void onProgressChange(IReceipt s) {
-                                receipt = s.getReceipt();
-                                System.out.println("xxxx:" + receipt);
-
-                                DownloadReceipt.STATE i = s.getReceiptState();
-                                String path = s.getDownloadFilePath();
-                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
-                                }
-                            }
-                        })
-                        .addRequestQueue(requestQueue);
-            }
-        });
-
-        mEnd1 = (Button) findViewById(R.id.stop2);
-        mEnd1.setOnClickListener(new View.OnClickListener() {
+        mEnd2 = (Button) findViewById(R.id.stop2);
+        mEnd2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 requestNormal.cancel();
             }
         });
 
-        mResume1 = (Button) findViewById(R.id.resume2);
-        mResume1.setOnClickListener(new View.OnClickListener() {
+        mResume2 = (Button) findViewById(R.id.resume2);
+        mResume2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl)
-                        .setEscapeReceipt(receipt)
-                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+                        .setDownloadUrl(downloadUrl1)
+                        .setEscapeReceipt(receipt1)
+                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+                            @Override
+                            public void onProgressPepare(IReceipt s) {
+                                receipt1 = s.getReceipt();
+                                System.out.println(receipt1);
+                            }
+                        })
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {
-                                receipt = s.getReceipt();
-                                System.out.println(s.getReceipt());
+                                receipt1 = s.getReceipt();
+                                System.out.println("xxxx:" + receipt1);
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                String path = s.getDownloadFilePath();
+                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    System.out.println("xxxx: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                }
                             }
                         })
                         .addRequestQueue(requestQueue);
             }
         });
+
+//        mStart2 = (Button) findViewById(R.id.start3);
+//        mStart2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+//                requestNormal2 = DownloadManager.create()
+//                        .setDownloadId(1)
+//                        .setDownloadUrl(downloadUrl1)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+//                            @Override
+//                            public void onProgressPepare(IReceipt s) {
+//                                receipt = s.getReceipt();
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                long size = s.getDownloadedSize();
+//                                System.out.println(receipt);
+//                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
+//                            }
+//                        })
+//                        .setListener(new Response.Listener<IReceipt>() {
+//                            @Override
+//                            public void onProgressChange(IReceipt s) {
+//                                receipt = s.getReceipt();
+//                                System.out.println("xxxx:" + receipt);
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+//                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+//                                }
+//                            }
+//                        })
+//                        .addRequestQueue(requestQueue);
+//            }
+//        });
+//
+//        mEnd2 = (Button) findViewById(R.id.stop3);
+//        mEnd2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                requestNormal2.cancel();
+//            }
+//        });
+//
+//        mResume2 = (Button) findViewById(R.id.resume3);
+//        mResume2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                requestNormal2 = DownloadManager.create()
+//                        .setDownloadId(1)
+//                        .setDownloadUrl(downloadUrl)
+//                        .setEscapeReceipt(receipt)
+//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+//                            @Override
+//                            public void onProgressPepare(IReceipt s) {
+//                                receipt = s.getReceipt();
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                long size = s.getDownloadedSize();
+//                                System.out.println(receipt);
+//                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
+//                            }
+//                        })
+//                        .setListener(new Response.Listener<IReceipt>() {
+//                            @Override
+//                            public void onProgressChange(IReceipt s) {
+//                                receipt = s.getReceipt();
+//                                System.out.println("xxxx:" + receipt);
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+//                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+//                                }
+//                            }
+//                        })
+//                        .addRequestQueue(requestQueue);
+//            }
+//        });
+//
+//        mStart3 = (Button) findViewById(R.id.start4);
+//        mStart3.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+//                requestNormal = DownloadManager.create()
+//                        .setDownloadId(1)
+//                        .setDownloadUrl(downloadUrl2)
+//                        .setDownloadedFileFolder(mDownloadedFileFolder)
+//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+//                            @Override
+//                            public void onProgressPepare(IReceipt s) {
+//                                receipt = s.getReceipt();
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                long size = s.getDownloadedSize();
+//                                System.out.println(receipt);
+//                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
+//                            }
+//                        })
+//                        .setListener(new Response.Listener<IReceipt>() {
+//                            @Override
+//                            public void onProgressChange(IReceipt s) {
+//                                receipt = s.getReceipt();
+//                                System.out.println("xxxx:" + receipt);
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+//                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+//                                }
+//                            }
+//                        })
+//                        .addRequestQueue(requestQueue);
+//            }
+//        });
+//
+//        mStart4 = (Button) findViewById(R.id.start5);
+//        mStart4.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+////                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
+//                requestNormal = DownloadManager.create()
+//                        .setDownloadId(1)
+//                        .setDownloadUrl(downloadUrl3)
+////                        .setDownloadedFileFolder(mDownloadedFileFolder)
+//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
+//                            @Override
+//                            public void onProgressPepare(IReceipt s) {
+//                                receipt = s.getReceipt();
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                long size = s.getDownloadedSize();
+//                                System.out.println(receipt);
+//                                System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + size);
+//                            }
+//                        })
+//                        .setListener(new Response.Listener<IReceipt>() {
+//                            @Override
+//                            public void onProgressChange(IReceipt s) {
+//                                receipt = s.getReceipt();
+//                                System.out.println("xxxx:" + receipt);
+//
+//                                DownloadReceipt.STATE i = s.getReceiptState();
+//                                String path = s.getDownloadFilePath();
+//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+//                                    System.out.println("xxxx 2: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+//                                }
+//                            }
+//                        })
+//                        .addRequestQueue(requestQueue);
+//            }
+//        });
+//
+//        mEnd1 = (Button) findViewById(R.id.stop2);
+//        mEnd1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                requestNormal.cancel();
+//            }
+//        });
+//
+//        mResume1 = (Button) findViewById(R.id.resume2);
+//        mResume1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                requestNormal = DownloadManager.create()
+//                        .setDownloadId(1)
+//                        .setDownloadUrl(downloadUrl)
+//                        .setEscapeReceipt(receipt)
+//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
+//                        .setListener(new Response.Listener<IReceipt>() {
+//                            @Override
+//                            public void onProgressChange(IReceipt s) {
+//                                receipt = s.getReceipt();
+//                                System.out.println(s.getReceipt());
+//                            }
+//                        })
+//                        .addRequestQueue(requestQueue);
+//            }
+//        });
     }
 
 }
