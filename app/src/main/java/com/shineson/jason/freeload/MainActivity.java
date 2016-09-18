@@ -47,8 +47,11 @@ public class MainActivity extends Activity {
     private String receipt = "";
     private String receipt1 = "";
 
+    private long time1 = 0;
+    private long time2 = 0;
+
     private String downloadUrl = "http://admin.doyo.cn/mobile/apk/5e/11d4289a4e2e03f78fd57f4509f219.apk";
-    private String downloadUrl1 = "http://a5.pc6.com/xyb3/yamuyingyu.apk";
+    private String downloadUrl1 = "http://www.apk3.com/uploads/soft/20160511/sanguokill.apk";
     private String downloadUrl2 = "http://admin.doyo.cn/mobile/apk/e1/fd44006e9d4fe48948313d7d0be6d9.apk";
     private String downloadUrl3 = "http://admin.doyo.cn/mobile/apk/f9/a4224b48cdd3f50f47b2f445f48f5f.apk";
 
@@ -65,13 +68,21 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 requestDoublie = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl)
+                        .setDownloadUrl(downloadUrl2)
                         .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
                         .setListener(new Response.Listener<IReceipt>() {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt = s.getReceipt();
-                                System.out.println(s.getReceipt());
+
+                                DownloadReceipt.STATE i = s.getReceiptState();
+                                if (i == DownloadReceipt.STATE.GETSIZE) {
+                                    System.out.println("xxxx: state:" + i);
+                                    time1 = System.currentTimeMillis();
+                                } else if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    time1 = System.currentTimeMillis() - time1;
+                                    System.out.println("xxxx: state:" + i + " time1:" + time1);
+                                }
                             }
                         })
                         .addRequestQueue(requestQueue);
@@ -92,7 +103,7 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 requestDoublie = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl)
+                        .setDownloadUrl(downloadUrl2)
                         .setEscapeReceipt(receipt)
                         .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
                         .setListener(new Response.Listener<IReceipt>() {
@@ -113,8 +124,8 @@ public class MainActivity extends Activity {
 
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl1)
-                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+                        .setDownloadUrl(downloadUrl2)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setPepareListener(new Response.PepareListener<IReceipt>() {
                             @Override
                             public void onProgressPepare(IReceipt s) {
@@ -126,12 +137,15 @@ public class MainActivity extends Activity {
                             @Override
                             public void onProgressChange(IReceipt s) {
                                 receipt1 = s.getReceipt();
-                                System.out.println("xxxx:" + receipt1);
 
                                 DownloadReceipt.STATE i = s.getReceiptState();
                                 String path = s.getDownloadFilePath();
-                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-                                    System.out.println("xxxx: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
+                                if (i == DownloadReceipt.STATE.GETSIZE) {
+                                    System.out.println("xxxx: state:" + i);
+                                    time2 = System.currentTimeMillis();
+                                } else if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
+                                    time2 = System.currentTimeMillis() - time2;
+                                    System.out.println("xxxx: state:" + i + " time2:" + time2);
                                 }
                             }
                         })
@@ -153,9 +167,9 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 requestNormal = DownloadManager.create()
                         .setDownloadId(1)
-                        .setDownloadUrl(downloadUrl1)
+                        .setDownloadUrl(downloadUrl2)
                         .setEscapeReceipt(receipt1)
-                        .setDownloadThreadType(DownloadThreadType.DOUBLETHREAD)
+                        .setDownloadThreadType(DownloadThreadType.NORMAL)
                         .setPepareListener(new Response.PepareListener<IReceipt>() {
                             @Override
                             public void onProgressPepare(IReceipt s) {

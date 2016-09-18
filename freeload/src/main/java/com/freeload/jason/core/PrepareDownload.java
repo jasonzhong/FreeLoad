@@ -50,8 +50,14 @@ public class PrepareDownload implements Prepare {
         }
 
         DownloadReceipt downloadReceipt = request.getDownloadReceipt();
+
+        boolean receiptResult = false;
         if (downloadReceipt != null) {
-            return parseStoragePagesFromReceipt(request, downloadReceipt);
+            receiptResult = parseStoragePagesFromReceipt(request, downloadReceipt);
+        }
+
+        if (receiptResult) {
+            return true;
         }
 
         return parseStoragePagesFromNew(request, request.getDownloadFileSize());
@@ -64,6 +70,11 @@ public class PrepareDownload implements Prepare {
 
         // 设置文件名
         String fileName = request.getFileName() + downloadReceipt.getDownloadPosition();
+        File file = new File(request.getFolderName() + File.separator + fileName);
+        if (!file.exists()) {
+            return false;
+        }
+
         request.setFileName(fileName);
 
         long lDownloadSize = downloadReceipt.getDownloadedSize();

@@ -3,8 +3,11 @@ package com.freeload.jason.core;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 public class EndingDownload implements IEnding {
@@ -69,37 +72,49 @@ public class EndingDownload implements IEnding {
         }
     }
 
-    private void copyNewFile(Request<?> request, File saveFile, int pos) {
-        RandomAccessFile fileSrc = null;
-        RandomAccessFile fileCopy = null;
+    private boolean copyNewFile(Request<?> request, File saveFile, int pos) {
+        if (saveFile == null) {
+            return false;
+        }
 
+        boolean result = false;
+
+        File oldfile = new File(request.getFolderName() + "/" + saveFile.getName() + ".tmp" + pos);
+
+        InputStream fInStream = null;
+        FileOutputStream fOutStream = null;
         try {
-            fileCopy = new RandomAccessFile(saveFile, "rwd");
-            fileSrc = new RandomAccessFile(request.getFolderName() + "/" + saveFile.getName() + ".tmp" + pos, "rwd");
-            fileSrc.seek(0);
+            fInStream = new FileInputStream(oldfile);
+            fOutStream = new FileOutputStream(saveFile, true);
+            if (!oldfile.exists()) {
+                return false;
+            }
 
-            int len = (int) fileSrc.length();
-            byte[] b = new byte[len];
-            fileSrc.readFully(b);
-            fileCopy.seek(fileCopy.length());
-            fileCopy.write(b);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            int byteread = 0;
+            byte[] buffer = new byte[2048];
+            while ((byteread = fInStream.read(buffer)) != -1) {
+                fOutStream.write(buffer, 0, byteread);
+            }
+
+            result = true;
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (fileCopy != null) {
-                    fileCopy.close();
+                if (fInStream != null) {
+                    fInStream = null;
+                    fInStream.close();
                 }
 
-                if (fileSrc != null) {
-                    fileSrc.close();
+                if (fOutStream != null) {
+                    fOutStream.close();
+                    fOutStream = null;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        return result;
     }
 
     private void postResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state, String filePath) {
