@@ -12,7 +12,7 @@ public class BasicDownload implements INetwork {
 
     /** connect to get downloadfile head timeout count. */
     private final static int CONNECT_TIMEOUT = 5 * 1000;
-    private final static int CONTAINER_SIZE = 2048;
+    private final static int CONTAINER_SIZE = 32 * 1024;
 
     @Override
     public void performRequest(Request<?> request) {
