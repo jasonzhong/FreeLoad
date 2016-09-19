@@ -57,6 +57,11 @@ public class DownloadManager {
         return this;
     }
 
+    public DownloadManager setFileSize(long fileSize) {
+        this.mEssentialInfo.mFileSize = fileSize;
+        return this;
+    }
+
     public DownloadManager setEscapeReceipt(String receipt) {
         this.mEssentialInfo.mCustomerReceipt.setCustomerReceipt(receipt);
         return this;
@@ -112,6 +117,7 @@ public class DownloadManager {
                 .setThreadPositon(position)
                 .setReceipt(mEssentialInfo.mCustomerReceipt.getDownloadReceipt(position))
                 .setDownloadFileName(this.mEssentialInfo.mFileName)
+                .setDownloadFileSize(this.mEssentialInfo.mFileSize)
                 .setDownloadThreadType(threadType)
                 .setPepareListener(new Response.PepareListener<DownloadReceipt>() {
                     @Override

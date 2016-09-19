@@ -26,7 +26,7 @@ public class PrepareDownload implements Prepare {
         }
         postPepareResponse(delivery, request, DownloadReceipt.STATE.GETSIZE, downloadFileSize);
 
-        request.setDownloadFileSize(downloadFileSize);
+        request.setFileSize(downloadFileSize);
         postResponse(delivery, request, DownloadReceipt.STATE.QUEST_PREPARE);
         boolean bParse = parseStoragePages(request);
         if (!bParse) {
@@ -275,6 +275,10 @@ public class PrepareDownload implements Prepare {
         }
 
         long downloadFileSize = 0;
+        if (request.getDownloadFileSize() > 0) {
+            return request.getDownloadFileSize();
+        }
+
         try {
             downloadFileSize = connectAndGetFileSize(request);
         } catch (Exception e) {

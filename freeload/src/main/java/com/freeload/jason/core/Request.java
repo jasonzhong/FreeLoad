@@ -254,7 +254,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * @param downloadFileSize
      */
-    public void setDownloadFileSize(long downloadFileSize) {
+    public void setFileSize(long downloadFileSize) {
         mDownloadFileSize = downloadFileSize;
     }
 

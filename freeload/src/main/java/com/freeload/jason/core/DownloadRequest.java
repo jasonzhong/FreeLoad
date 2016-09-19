@@ -20,6 +20,13 @@ public class DownloadRequest extends Request<DownloadReceipt> {
         return this;
     }
 
+    public DownloadRequest setDownloadFileSize(long fileSize) {
+        if (fileSize != 0) {
+            setFileSize(fileSize);
+        }
+        return this;
+    }
+
     public DownloadRequest setListener(Response.Listener<DownloadReceipt> listener) {
         this.mListener = listener;
         return this;

@@ -15,6 +15,9 @@ public class EssentialInfo {
     /** download file name */
     public String mFileName = "";
 
+    /** download file size */
+    public long mFileSize = 0;
+
     /** downloaded file store path */
     public String mDownloadedFileFolder = "";
 
