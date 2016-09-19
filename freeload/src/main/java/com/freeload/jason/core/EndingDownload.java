@@ -100,8 +100,8 @@ public class EndingDownload implements IEnding {
         } finally {
             try {
                 if (fInStream != null) {
-                    fInStream = null;
                     fInStream.close();
+                    fInStream = null;
                 }
 
                 if (fOutStream != null) {
