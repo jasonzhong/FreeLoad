@@ -2,6 +2,9 @@ package com.shineson.jason.freeload;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -15,6 +18,13 @@ import com.freeload.jason.toolbox.EscapeReceipt;
 import com.freeload.jason.toolbox.Freeload;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
 
 public class MainActivity extends Activity {
 
@@ -23,6 +33,7 @@ public class MainActivity extends Activity {
     private DownloadManager requestNormal = null;
     private DownloadManager requestNormal1 = null;
     private DownloadManager requestNormal2 = null;
+    private DownloadManager requestNormal3 = null;
 
     private Button mStart = null;
     private Button mEnd = null;
@@ -194,91 +205,71 @@ public class MainActivity extends Activity {
             }
         });
 
-//        mStart2 = (Button) findViewById(R.id.start3);
-//        mStart2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                String mDownloadedFileFolder = getCacheDir() + File.separator + "kuaichuanshou" + File.separator + "fdownload";
-//                requestNormal2 = DownloadManager.create()
-//                        .setDownloadId(1)
-//                        .setDownloadUrl(downloadUrl1)
-//                        .setDownloadedFileFolder(mDownloadedFileFolder)
-//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
-//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
-//                            @Override
-//                            public void onProgressPepare(IReceipt s) {
-//                                receipt = s.getReceipt();
-//
-//                                DownloadReceipt.STATE i = s.getReceiptState();
-//                                String path = s.getDownloadFilePath();
-//                                long size = s.getDownloadedSize();
-//                                System.out.println(receipt);
-//                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
-//                            }
-//                        })
-//                        .setListener(new Response.Listener<IReceipt>() {
-//                            @Override
-//                            public void onProgressChange(IReceipt s) {
-//                                receipt = s.getReceipt();
-//                                System.out.println("xxxx:" + receipt);
-//
-//                                DownloadReceipt.STATE i = s.getReceiptState();
-//                                String path = s.getDownloadFilePath();
-//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-//                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
-//                                }
-//                            }
-//                        })
-//                        .addRequestQueue(requestQueue);
-//            }
-//        });
-//
-//        mEnd2 = (Button) findViewById(R.id.stop3);
-//        mEnd2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                requestNormal2.cancel();
-//            }
-//        });
-//
-//        mResume2 = (Button) findViewById(R.id.resume3);
-//        mResume2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                requestNormal2 = DownloadManager.create()
-//                        .setDownloadId(1)
-//                        .setDownloadUrl(downloadUrl)
-//                        .setEscapeReceipt(receipt)
-//                        .setDownloadThreadType(DownloadThreadType.NORMAL)
-//                        .setPepareListener(new Response.PepareListener<IReceipt>() {
-//                            @Override
-//                            public void onProgressPepare(IReceipt s) {
-//                                receipt = s.getReceipt();
-//
-//                                DownloadReceipt.STATE i = s.getReceiptState();
-//                                String path = s.getDownloadFilePath();
-//                                long size = s.getDownloadedSize();
-//                                System.out.println(receipt);
-//                                System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + size);
-//                            }
-//                        })
-//                        .setListener(new Response.Listener<IReceipt>() {
-//                            @Override
-//                            public void onProgressChange(IReceipt s) {
-//                                receipt = s.getReceipt();
-//                                System.out.println("xxxx:" + receipt);
-//
-//                                DownloadReceipt.STATE i = s.getReceiptState();
-//                                String path = s.getDownloadFilePath();
-//                                if (i == DownloadReceipt.STATE.SUCCESS_COMBIN_FILE) {
-//                                    System.out.println("xxxx 1: state:" + i + " path:" + path + " size:" + s.getDownloadedSize());
-//                                }
-//                            }
-//                        })
-//                        .addRequestQueue(requestQueue);
-//            }
-//        });
+        mStart3 = (Button) findViewById(R.id.start3);
+        mStart3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                final okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(downloadUrl2)
+                        .build();
+                Call call = okHttpClient.newCall(request);
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                        InputStream is = null;
+                        byte[] buf = new byte[2048];
+                        int len = 0;
+                        FileOutputStream fos = null;
+                        String SDPath = Environment.getExternalStorageDirectory() + "/freeload/downloadfile";
+                        try {
+                            is = response.body().byteStream();
+                            long total = response.body().contentLength();
+                            File file = new File(SDPath, "abc.apk");
+                            fos = new FileOutputStream(file);
+                            while ((len = is.read(buf)) != -1) {
+                                fos.write(buf, 0, len);
+                            }
+                            fos.flush();
+                            Log.d("h_bl", "文件下载成功");
+                        } catch (Exception e) {
+                            Log.d("h_bl", "文件下载失败");
+                        } finally {
+                            try {
+                                if (is != null)
+                                    is.close();
+                            } catch (IOException e) {
+                            }
+                            try {
+                                if (fos != null)
+                                    fos.close();
+                            } catch (IOException e) {
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        mEnd3 = (Button) findViewById(R.id.stop3);
+        mEnd3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+
+        mResume3 = (Button) findViewById(R.id.resume3);
+        mResume3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 //
 //        mStart3 = (Button) findViewById(R.id.start4);
 //        mStart3.setOnClickListener(new View.OnClickListener() {

@@ -55,7 +55,7 @@
             android:text="resume"/>
     </LinearLayout>
 
-    <!--LinearLayout
+    <LinearLayout
         android:id="@+id/linearlayout3"
         android:layout_below="@+id/linearlayout2"
         android:layout_width="match_parent"
@@ -80,7 +80,7 @@
             android:text="resume"/>
     </LinearLayout>
 
-    <LinearLayout
+    <!--LinearLayout
         android:id="@+id/linearlayout4"
         android:layout_below="@+id/linearlayout3"
         android:layout_width="match_parent"
