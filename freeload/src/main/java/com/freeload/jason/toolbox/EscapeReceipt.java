@@ -28,42 +28,22 @@ public class EscapeReceipt implements Serializable, IReceipt {
         return null;
     }
 
-    public void setDownloadReceipt(DownloadReceipt receipt) {
+    public void setDownloadReceipt(DownloadReceipt receipt, int position) {
         if (null == receipt) {
             return;
         }
 
-        long size = 0;
-        long totalSize = 0;
-
-        long fileSize = 0;
-        long fileTotalSize = 0;
-
-        String path = "";
-        int pos = 0;
-        for (; pos < mListReceipt.size(); ++pos) {
-            DownloadReceipt localReceipt = mListReceipt.get(pos);
-            if (localReceipt.getDownloadPosition() == receipt.getDownloadPosition()) {
-                size = localReceipt.getDownloadedSize();
-                totalSize = localReceipt.getDownloadTotalSize();
-                path = localReceipt.getDownloadFilePath();
-
-                fileSize = localReceipt.getWriteFileSize();
-                fileTotalSize = localReceipt.getDownloadTotalSize();
-
-                if (receipt.getDownloadTotalSize() == 0) {
-                    receipt.setDownloadedSize(size);
-                    receipt.setTotalDownloadSize(totalSize);
-                    receipt.setWriteFileSize(fileSize);
-                    receipt.setWriteFileTotalSize(fileTotalSize);
-                    receipt.setDownloadFilePath(path);
-                }
-                mListReceipt.remove(pos);
-                mListReceipt.add(receipt);
-                return;
-            }
+        if (mListReceipt.size() < (position + 1)) {
+            mListReceipt.add(receipt);
+            return;
         }
-        mListReceipt.add(receipt);
+
+        DownloadReceipt localReceipt = mListReceipt.get(position);
+        localReceipt.setDownloadedSize(receipt.getDownloadedSize());
+        localReceipt.setTotalDownloadSize(receipt.getDownloadTotalSize());
+        localReceipt.setWriteFileSize(receipt.getWriteFileSize());
+        localReceipt.setWriteFileTotalSize(receipt.getWriteFileTotalSize());
+        localReceipt.setDownloadState(receipt.getDownloadState());
     }
 
     public void setCustomerReceipt(String receipt) {

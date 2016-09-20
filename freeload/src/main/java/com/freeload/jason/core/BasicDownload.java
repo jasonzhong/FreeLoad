@@ -11,8 +11,8 @@ import java.net.URL;
 public class BasicDownload implements INetwork {
 
     /** connect to get downloadfile head timeout count. */
-    private final static int CONNECT_TIMEOUT = 5 * 1000;
-    private final static int CONTAINER_SIZE = 32 * 1024;
+    private final static int CONNECT_TIMEOUT = 50 * 1000;
+    private final static int CONTAINER_SIZE = 128 * 1024;
 
     @Override
     public void performRequest(Request<?> request) {
@@ -118,10 +118,14 @@ public class BasicDownload implements INetwork {
         long startDownloadPos = request.getDownloadStart();
         long endDownloadPos = request.getDownloadEnd();
 
-        long writeFileLength = 0;
+        long writeFileLength = fileStartPos;
 
         RandomAccessFile threadfile = new RandomAccessFile(request.getSaveFile(), "rwd");
         threadfile.seek(fileStartPos);
+
+        postResponse(request, delivery, DownloadReceipt.STATE.START,
+                startDownloadPos, endDownloadPos,
+                writeFileLength, fileEndPos);
 
         inStream = http.getInputStream();
 
@@ -131,36 +135,37 @@ public class BasicDownload implements INetwork {
                 offset = inStream.read(buffer, 0, CONTAINER_SIZE);
             } catch (IOException io) {
                 postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
-                        startDownloadPos + writeFileLength, endDownloadPos,
-                        startDownloadPos + writeFileLength, fileEndPos);
+                        startDownloadPos, endDownloadPos,
+                        writeFileLength, fileEndPos);
                 result = false;
                 break;
             }
 
             if (offset == -1) {
                 postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
-                        startDownloadPos + writeFileLength, endDownloadPos,
-                        startDownloadPos + writeFileLength, fileEndPos);
+                        startDownloadPos, endDownloadPos,
+                        writeFileLength, fileEndPos);
                 break;
             }
 
             threadfile.write(buffer, 0, offset);
             writeFileLength += offset;
+            startDownloadPos += offset;
 
             postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
-                    startDownloadPos + writeFileLength, endDownloadPos,
-                    startDownloadPos + writeFileLength, fileEndPos);
+                    startDownloadPos, endDownloadPos,
+                    writeFileLength, fileEndPos);
 
             request.setDownloadStart(startDownloadPos + writeFileLength);
             request.setDownloadEnd(endDownloadPos);
 
-            request.setWriteFileStart(startDownloadPos + writeFileLength);
+            request.setWriteFileStart(writeFileLength);
             request.setWriteFileEnd(fileEndPos);
 
             if (request.isCanceled()) {
                 postResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
-                        startDownloadPos + writeFileLength, endDownloadPos,
-                        startDownloadPos + writeFileLength, fileEndPos);
+                        startDownloadPos, endDownloadPos,
+                        writeFileLength, fileEndPos);
                 break;
             }
         }

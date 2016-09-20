@@ -18,6 +18,8 @@ public class DownloadManager {
 
     private ArrayList<DownloadRequest> mDownloadRequestList = null;
 
+    private EscapeReceipt escapeReceipt = new EscapeReceipt();
+
     public static DownloadManager create() {
         return new DownloadManager();
     }
@@ -84,6 +86,9 @@ public class DownloadManager {
             case DownloadThreadType.DOUBLETHREAD:
                 ThreadSize = 2;
                 break;
+            case DownloadThreadType.TRIPLETHREAD:
+                ThreadSize = 3;
+                break;
             default:
                 ThreadSize = 1;
                 break;
@@ -109,7 +114,7 @@ public class DownloadManager {
         return this;
     }
 
-    private DownloadRequest createMulitDownloadRequest(int position, int threadType) {
+    private DownloadRequest createMulitDownloadRequest(final int position, int threadType) {
         return DownloadRequest.create()
                 .setDownloadId(this.mEssentialInfo.mId)
                 .setDownloadUrl(this.mEssentialInfo.mUrl)
@@ -123,7 +128,7 @@ public class DownloadManager {
                     @Override
                     public void onProgressPepare(DownloadReceipt response) {
                         EscapeReceipt escapeReceipt = new EscapeReceipt();
-                        escapeReceipt.setDownloadReceipt(response);
+                        escapeReceipt.setDownloadReceipt(response, position - 1);
                         if (mEssentialInfo.mPepareListener != null) {
                             mEssentialInfo.mPepareListener.onProgressPepare(escapeReceipt);
                         }
@@ -135,8 +140,8 @@ public class DownloadManager {
                         if (response.getDownloadState() == DownloadReceipt.STATE.SUCCESS_DOWNLOAD) {
                             ++mSuccessCount;
                         }
-                        EscapeReceipt escapeReceipt = new EscapeReceipt();
-                        escapeReceipt.setDownloadReceipt(response);
+
+                        escapeReceipt.setDownloadReceipt(response, position - 1);
 
                         if (mEssentialInfo.mListener != null) {
                             mEssentialInfo.mListener.onProgressChange(escapeReceipt);
@@ -163,7 +168,7 @@ public class DownloadManager {
                     @Override
                     public void onProgressChange(DownloadReceipt response) {
                         EscapeReceipt escapeReceipt = new EscapeReceipt();
-                        escapeReceipt.setDownloadReceipt(response);
+                        escapeReceipt.setDownloadReceipt(response, 0);
                         mEssentialInfo.mListener.onProgressChange(escapeReceipt);
                     }
                 });

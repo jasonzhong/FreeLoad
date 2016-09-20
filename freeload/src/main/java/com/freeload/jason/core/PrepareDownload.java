@@ -100,6 +100,9 @@ public class PrepareDownload implements Prepare {
             case DownloadThreadType.DOUBLETHREAD:
                 bRes = setQuestDownloadSizeInfo(request, downloadFileSize, 2);
                 break;
+            case DownloadThreadType.TRIPLETHREAD:
+                bRes = setQuestDownloadSizeInfo(request, downloadFileSize, 3);
+                break;
             default:
                 bRes = setQuestDownloadSizeInfo(request, downloadFileSize, 1);
                 break;
@@ -135,7 +138,7 @@ public class PrepareDownload implements Prepare {
         if (division == 1) {
             request.setDownloadFilePerSize(downloadFileSize);
         } else {
-            request.setDownloadFilePerSize(perSize);
+            request.setDownloadFilePerSize(perSize * (division - 1));
         }
 
         return true;
@@ -211,6 +214,13 @@ public class PrepareDownload implements Prepare {
                     break;
                 case DownloadThreadType.DOUBLETHREAD:
                     if (request.getThreadPosition() == 2) {
+                        randOut.setLength(request.getDownloadFileSize() - request.getDownloadFilePerSize());
+                    } else {
+                        randOut.setLength(request.getDownloadFilePerSize());
+                    }
+                    break;
+                case DownloadThreadType.TRIPLETHREAD:
+                    if (request.getThreadPosition() == 3) {
                         randOut.setLength(request.getDownloadFileSize() - request.getDownloadFilePerSize());
                     } else {
                         randOut.setLength(request.getDownloadFilePerSize());

@@ -22,6 +22,9 @@ public class EndingDownload implements IEnding {
             case DownloadThreadType.DOUBLETHREAD:
                 size = 2;
                 break;
+            case DownloadThreadType.TRIPLETHREAD:
+                size = 3;
+                break;
             default:
                 size = 1;
                 break;
