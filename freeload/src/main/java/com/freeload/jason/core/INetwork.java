@@ -4,5 +4,7 @@ public interface INetwork {
 
     public void performRequest(Request<?> request);
 
-    public void performRequest(Request<?> request, ResponseDelivery delivery);
+    public boolean performRequest(Request<?> request, ResponseDelivery delivery);
+
+    public boolean tryPerformRequest(Request<?> request, ResponseDelivery delivery);
 }

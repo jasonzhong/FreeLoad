@@ -61,6 +61,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /** download file receipt */
     private DownloadReceipt mDownloadReceipt = null;
 
+    /** download file retry */
+    private int mDownloadRetry = 3;
+
     private final static String fileSaveDir = Environment.getExternalStorageDirectory() + "/freeload/downloadfile";
 
     protected Request() {
@@ -80,6 +83,14 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     public void setFileFolder(String fileFolder) {
         this.mFileFolder = parseFileFolder(fileFolder);
+    }
+
+    public void setDownloadRetryTime(int retry) {
+        mDownloadRetry = retry;
+    }
+
+    public int getDownloadRetryTime() {
+        return mDownloadRetry;
     }
 
     public void setDownloadReceipt(DownloadReceipt downloadReceipt) {
@@ -155,6 +166,13 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     public boolean isCanceled() {
         return mCanceled;
+    }
+
+    /**
+     * Returns true if this request has been canceled.
+     */
+    public boolean resetCanceled() {
+        return mCanceled = false;
     }
 
     /**

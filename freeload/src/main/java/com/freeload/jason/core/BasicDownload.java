@@ -20,39 +20,44 @@ public class BasicDownload implements INetwork {
     }
 
     @Override
-    public void performRequest(Request<?> request, ResponseDelivery delivery) {
+    public boolean performRequest(Request<?> request, ResponseDelivery delivery) {
+        boolean transferSucc = false;
+
+        long startDownloadPos = request.getDownloadStart();
+        long endDownloadPos = request.getDownloadEnd();
+        long fileEndPos = request.getWriteFileEnd();
+
+        postResponse(request, delivery, DownloadReceipt.STATE.START,
+                startDownloadPos, endDownloadPos,
+                0, fileEndPos);
+
+        transferSucc = downloadCore(request, delivery, startDownloadPos, endDownloadPos, fileEndPos);
+        return transferSucc;
+    }
+
+    private boolean downloadCore(Request<?> request, ResponseDelivery delivery,
+                                 long startDownloadPos, long endDownloadPos, long fileEndPos) {
+
+        boolean transferSucc = false;
         HttpURLConnection http = null;
         try {
-            long startDownloadPos = request.getDownloadStart();
-            long endDownloadPos = request.getDownloadEnd();
-
-            long fileStartPos = request.getWriteFileStart();
-            long fileEndPos = request.getWriteFileEnd();
-
             URL downloadUrl = new URL(request.getUrl());
-            postResponse(request, delivery, DownloadReceipt.STATE.START,
-                    startDownloadPos, endDownloadPos,
-                    0, fileEndPos);
-
-            //使用Get方式下载
 
             http = (HttpURLConnection) downloadUrl.openConnection();
             http.setConnectTimeout(CONNECT_TIMEOUT);
+            http.setReadTimeout(CONNECT_TIMEOUT);
             http.setRequestMethod("GET");
             http.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
             http.setRequestProperty("Accept-Language", "zh-CN");
-            http.setRequestProperty("Referer", downloadUrl.toString());
             http.setRequestProperty("Charset", "UTF-8");
 
             http.setRequestProperty("Range", "bytes=" + startDownloadPos + "-"+ endDownloadPos);//设置获取实体数据的范围
-            http.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
-            http.setRequestProperty("Connection", "Keep-Alive");
 
             int exception = http.getResponseCode();
             switch (exception) {
                 case 200 :
                 case 206 :
-                    transferData(request, delivery, http);
+                    transferSucc = transferData(request, delivery, http);
                     break;
                 case 301:
                 case 302:
@@ -77,16 +82,32 @@ public class BasicDownload implements INetwork {
             }
 
         } catch (Exception e) {
-            postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                    0, 0, 0, 0);
+            postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG, 0, 0, 0, 0);
         } finally {
             if (http != null) {
                 http.disconnect();
             }
         }
+
+        return transferSucc;
     }
 
-    private void transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http) throws IOException {
+    @Override
+    public boolean tryPerformRequest(Request<?> request, ResponseDelivery delivery) {
+        boolean transferSucc = false;
+
+        long startDownloadPos = request.getDownloadStart();
+        long endDownloadPos = request.getDownloadEnd();
+        long fileEndPos = request.getWriteFileEnd();
+
+        transferSucc = downloadCore(request, delivery, startDownloadPos, endDownloadPos, fileEndPos);
+
+        return transferSucc;
+    }
+
+    private boolean transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http) throws IOException {
+        boolean result = true;
+
         InputStream inStream = null;
         byte[] buffer = new byte[CONTAINER_SIZE];
 
@@ -112,12 +133,7 @@ public class BasicDownload implements INetwork {
                 postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
                         startDownloadPos + writeFileLength, endDownloadPos,
                         startDownloadPos + writeFileLength, fileEndPos);
-                if (threadfile != null) {
-                    threadfile.close();
-                }
-                if (inStream != null) {
-                    inStream.close();
-                }
+                result = false;
                 break;
             }
 
@@ -125,13 +141,6 @@ public class BasicDownload implements INetwork {
                 postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
                         startDownloadPos + writeFileLength, endDownloadPos,
                         startDownloadPos + writeFileLength, fileEndPos);
-
-                if (threadfile != null) {
-                    threadfile.close();
-                }
-                if (inStream != null) {
-                    inStream.close();
-                }
                 break;
             }
 
@@ -142,26 +151,29 @@ public class BasicDownload implements INetwork {
                     startDownloadPos + writeFileLength, endDownloadPos,
                     startDownloadPos + writeFileLength, fileEndPos);
 
+            request.setDownloadStart(startDownloadPos + writeFileLength);
+            request.setDownloadEnd(endDownloadPos);
+
+            request.setWriteFileStart(startDownloadPos + writeFileLength);
+            request.setWriteFileEnd(fileEndPos);
+
             if (request.isCanceled()) {
                 postResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
                         startDownloadPos + writeFileLength, endDownloadPos,
                         startDownloadPos + writeFileLength, fileEndPos);
-                if (threadfile != null) {
-                    threadfile.close();
-                }
-                if (inStream != null) {
-                    inStream.close();
-                }
                 break;
             }
         }
 
         if (threadfile != null) {
             threadfile.close();
+            threadfile = null;
         }
         if (inStream != null) {
             inStream.close();
+            inStream = null;
         }
+        return result;
     }
 
     private void postResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,

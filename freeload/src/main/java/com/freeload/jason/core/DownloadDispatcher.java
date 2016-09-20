@@ -60,7 +60,15 @@ public class DownloadDispatcher extends Thread {
                 continue;
             }
 
-            mDownload.performRequest(request, mDelivery);
+            boolean download = mDownload.performRequest(request, mDelivery);
+            if (!download) {
+                for (int count = 0; count < request.getDownloadRetryTime(); ++count) {
+                    boolean downloadRetry = mDownload.tryPerformRequest(request, mDelivery);
+                    if (downloadRetry) {
+                        break;
+                    }
+                }
+            }
 
             request.finish();
         }
