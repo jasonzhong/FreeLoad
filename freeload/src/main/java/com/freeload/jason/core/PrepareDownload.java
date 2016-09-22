@@ -25,8 +25,14 @@ public class PrepareDownload implements Prepare {
             return false;
         }
         postPepareResponse(delivery, request, DownloadReceipt.STATE.GETSIZE, downloadFileSize);
-
         request.setFileSize(downloadFileSize);
+
+        int nPos = request.getThreadPosition();
+        File file = new File(request.getFolderName(), request.getFileName() + "" + nPos);
+        if (!file.exists()) {
+            request.setDownloadReceipt(null);
+        }
+
         postResponse(delivery, request, DownloadReceipt.STATE.QUEST_PREPARE);
         boolean bParse = parseStoragePages(request);
         if (!bParse) {
@@ -279,14 +285,23 @@ public class PrepareDownload implements Prepare {
     }
 
     private long getFileSize(Request<?> request) {
+        long fileSize = 0;
         DownloadReceipt downloadReceipt = request.getDownloadReceipt();
         if (downloadReceipt != null) {
-            return downloadReceipt.getDownloadTotalSize();
+            fileSize = downloadReceipt.getDownloadTotalSize();
+        }
+
+        if (fileSize > 0) {
+            return fileSize;
         }
 
         long downloadFileSize = 0;
         if (request.getDownloadFileSize() > 0) {
-            return request.getDownloadFileSize();
+            fileSize = request.getDownloadFileSize();
+        }
+
+        if (fileSize > 0) {
+            return fileSize;
         }
 
         try {

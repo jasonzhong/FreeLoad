@@ -102,7 +102,7 @@ public class EscapeReceipt implements Serializable, IReceipt {
 //                CONNWRONG               // 15
 //                PEPARE_FINISH,          // 16
 //                FAILED_GET_STREAM       // 17
-
+//                RETRY_DOWNLOAD          // 18
 
         if (downloadState.toUpperCase().equals("NONE")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
@@ -138,6 +138,8 @@ public class EscapeReceipt implements Serializable, IReceipt {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.TIMEOUT);
         } else if (downloadState.toUpperCase().equals("CONNWRONG")) {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.CONNWRONG);
+        } else if (downloadState.toUpperCase().equals("RETRY_DOWNLOAD")) {
+            downloadReceipt.setDownloadState(DownloadReceipt.STATE.RETRY_DOWNLOAD);
         } else {
             downloadReceipt.setDownloadState(DownloadReceipt.STATE.NONE);
         }

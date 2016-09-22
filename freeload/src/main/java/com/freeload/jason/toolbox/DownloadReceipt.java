@@ -24,7 +24,8 @@ public class DownloadReceipt implements Serializable {
 		TIMEOUT,                // 14
         CONNWRONG,              // 15
         PEPARE_FINISH,          // 16
-        FAILED_GET_STREAM       // 17
+        FAILED_GET_STREAM,      // 17
+        RETRY_DOWNLOAD          // 18
 	}
 
     private int mPosition = 0;

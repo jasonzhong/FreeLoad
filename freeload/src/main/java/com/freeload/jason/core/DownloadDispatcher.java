@@ -63,7 +63,22 @@ public class DownloadDispatcher extends Thread {
             boolean download = mDownload.performRequest(request, mDelivery);
             if (!download) {
                 for (int count = 0; count < request.getDownloadRetryTime(); ++count) {
-                    boolean downloadRetry = mDownload.tryPerformRequest(request, mDelivery);
+                    if (request.isCanceled()) {
+                        request.finish();
+                        break;
+                    }
+
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    boolean finalDownload = false;
+                    if (count == 2) {
+                        finalDownload = true;
+                    }
+                    boolean downloadRetry = mDownload.retryPerformRequest(request, mDelivery, finalDownload);
                     if (downloadRetry) {
                         break;
                     }

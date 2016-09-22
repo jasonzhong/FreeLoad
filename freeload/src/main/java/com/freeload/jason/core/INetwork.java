@@ -6,5 +6,5 @@ public interface INetwork {
 
     public boolean performRequest(Request<?> request, ResponseDelivery delivery);
 
-    public boolean tryPerformRequest(Request<?> request, ResponseDelivery delivery);
+    public boolean retryPerformRequest(Request<?> request, ResponseDelivery delivery, boolean finalDownload);
 }
