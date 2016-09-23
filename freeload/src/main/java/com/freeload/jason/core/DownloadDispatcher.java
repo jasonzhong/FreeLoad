@@ -2,6 +2,8 @@ package com.freeload.jason.core;
 
 import android.os.Process;
 
+import com.freeload.jason.toolbox.DownloadReceipt;
+
 import java.util.concurrent.BlockingQueue;
 
 public class DownloadDispatcher extends Thread {
@@ -60,33 +62,65 @@ public class DownloadDispatcher extends Thread {
                 continue;
             }
 
+            boolean downloadRetry = false;
             boolean download = mDownload.performRequest(request, mDelivery);
             if (!download) {
-                for (int count = 0; count < request.getDownloadRetryTime(); ++count) {
+                while (request.getDownloadRetryCount() < request.getDownloadRetryLimiteCount()) {
                     if (request.isCanceled()) {
                         request.finish();
                         break;
                     }
 
                     try {
-                        Thread.sleep(300);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
 
+                    request.addDownloadRetryCount();
+
                     boolean finalDownload = false;
-                    if (count == 2) {
+                    if (request.getDownloadRetryCount() == request.getDownloadRetryLimiteCount()) {
                         finalDownload = true;
                     }
-                    boolean downloadRetry = mDownload.retryPerformRequest(request, mDelivery, finalDownload);
+
+                    downloadRetry = mDownload.retryPerformRequest(request, mDelivery, finalDownload);
                     if (downloadRetry) {
                         break;
                     }
                 }
             }
 
+            if (!downloadRetry && !download) {
+                postResponse(request, mDelivery, DownloadReceipt.STATE.CANCEL,
+                        0, 0, 0, 0);
+            }
             request.finish();
         }
+    }
+
+    private void postResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
+                              long downLoadFileSize, long downloadLength,
+                              long writeFileSize, long writeFileLength) {
+        if (delivery == null) {
+            return;
+        }
+        DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
+                downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
+    }
+
+    private DownloadReceipt getDownloadReceipt(Request<?> request, DownloadReceipt.STATE state,
+                                               long downLoadFileSize, long downloadLength,
+                                               long writeFileSize, long writeFileLength) {
+        DownloadReceipt downloadReceipt = new DownloadReceipt();
+        downloadReceipt.setDownloadPosition(request.getThreadPosition());
+        downloadReceipt.setDownloadState(state);
+        downloadReceipt.setDownloadedSize(downLoadFileSize);
+        downloadReceipt.setTotalDownloadSize(downloadLength);
+        downloadReceipt.setWriteFileSize(writeFileSize);
+        downloadReceipt.setWriteFileTotalSize(writeFileLength);
+        return downloadReceipt;
     }
 
     /**

@@ -69,10 +69,26 @@ public class DownloadManager {
         return this;
     }
 
-    public void cancel() {
+    public boolean cancel() {
+        boolean cancelNow = false;
         for (DownloadRequest downloadRequest : mDownloadRequestList) {
             downloadRequest.cancel();
+            if (hasRequestInRequestQueue(downloadRequest)) {
+                cancelNow = removeRequestQueue(downloadRequest);
+
+                DownloadReceipt downloadReceipt = new DownloadReceipt();
+                downloadReceipt.setDownloadState(DownloadReceipt.STATE.CANCEL);
+
+                if (escapeReceipt != null) {
+                    escapeReceipt.setDownloadReceipt(downloadReceipt, 0);
+                }
+
+                if (mEssentialInfo.mListener != null) {
+                    mEssentialInfo.mListener.onProgressChange(escapeReceipt);
+                }
+            }
         }
+        return cancelNow;
     }
 
     public DownloadManager addRequestQueue(RequestQueue requestQueue) {
@@ -102,6 +118,22 @@ public class DownloadManager {
         return this;
     }
 
+    public boolean removeRequestQueue(DownloadRequest downloadRequest) {
+        if (mRequestQueue == null) {
+            return false;
+        }
+
+        mRequestQueue.removeRequest(downloadRequest);
+        return true;
+    }
+
+    public boolean hasRequestInRequestQueue(DownloadRequest downloadRequest) {
+        if (mRequestQueue == null) {
+            return false;
+        }
+        return mRequestQueue.queryRequest(downloadRequest);
+    }
+
     private void addRequestQueue(int pos) {
         mThreadCount = pos;
         for (int position = 1; position <= pos; ++position) {
@@ -127,6 +159,10 @@ public class DownloadManager {
                 .setPepareListener(new Response.PepareListener<DownloadReceipt>() {
                     @Override
                     public void onProgressPepare(DownloadReceipt response) {
+                        if (response == null) {
+                            return;
+                        }
+
                         EscapeReceipt escapeReceipt = new EscapeReceipt();
                         escapeReceipt.setDownloadReceipt(response, position - 1);
                         if (mEssentialInfo.mPepareListener != null) {
@@ -137,6 +173,10 @@ public class DownloadManager {
                 .setListener(new Response.Listener<DownloadReceipt>() {
                     @Override
                     public void onProgressChange(DownloadReceipt response) {
+                        if (response == null) {
+                            return;
+                        }
+
                         if (response.getDownloadState() == DownloadReceipt.STATE.SUCCESS_DOWNLOAD) {
                             ++mSuccessCount;
                         }

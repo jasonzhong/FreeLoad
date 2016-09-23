@@ -183,16 +183,23 @@ public class EscapeReceipt implements Serializable, IReceipt {
     }
 
     @Override
+    public long getDownloadedFileSize() {
+        if (mListReceipt.size() <= 0) {
+            return 0;
+        }
+        long fileTotalSize = 0;
+        for (DownloadReceipt receipt : mListReceipt) {
+            fileTotalSize += receipt.getWriteFileSize();
+        }
+        return fileTotalSize;
+    }
+
+    @Override
     public long getDownloadedSize(int pos) {
         if (mListReceipt.size() <= 0) {
             return 0;
         }
-
-        long size = 0;
-        for (DownloadReceipt downloadReceipt : mListReceipt) {
-            size += downloadReceipt.getDownloadedSize();
-        }
-        return size;
+        return mListReceipt.get(0).getDownloadedSize();
     }
 
     @Override

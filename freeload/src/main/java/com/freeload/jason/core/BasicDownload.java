@@ -11,8 +11,8 @@ import java.net.URL;
 public class BasicDownload implements INetwork {
 
     /** connect to get downloadfile head timeout count. */
-    private final static int CONNECT_TIMEOUT = 50 * 1000;
-    private final static int CONTAINER_SIZE = 128 * 1024;
+    private final static int CONNECT_TIMEOUT = 5 * 1000;
+    private final static int CONTAINER_SIZE = 8 * 1024;
 
     @Override
     public void performRequest(Request<?> request) {
@@ -53,7 +53,7 @@ public class BasicDownload implements INetwork {
 
             http = (HttpURLConnection) downloadUrl.openConnection();
             http.setConnectTimeout(CONNECT_TIMEOUT);
-            http.setReadTimeout(CONNECT_TIMEOUT);
+            http.setReadTimeout(1000);
             http.setRequestProperty("Range", "bytes=" + startDownloadPos + "-"+ endDownloadPos);//设置获取实体数据的范围
 
             int exception = http.getResponseCode();
@@ -66,28 +66,36 @@ public class BasicDownload implements INetwork {
                 case 302:
                 case 303:
                 case 307:
-                    postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                            startDownloadPos, endDownloadPos,
-                            fileStartPos, fileEndPos);
+                    if (finalDownload) {
+                        postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                                startDownloadPos, endDownloadPos,
+                                fileStartPos, fileEndPos);
+                    }
                     break;
                 case 416:
                 case 500:
                 case 503:
-                    postResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT,
-                            startDownloadPos, endDownloadPos,
-                            fileStartPos, fileEndPos);
+                    if (finalDownload) {
+                        postResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT,
+                                startDownloadPos, endDownloadPos,
+                                fileStartPos, fileEndPos);
+                    }
                     break;
                 default:
-                    postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                            startDownloadPos, endDownloadPos,
-                            fileStartPos, fileEndPos);
+                    if (finalDownload) {
+                        postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                                startDownloadPos, endDownloadPos,
+                                fileStartPos, fileEndPos);
+                    }
                     break;
             }
 
         } catch (Exception e) {
-            postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                    startDownloadPos, endDownloadPos,
-                    fileStartPos, fileEndPos);
+            if (finalDownload) {
+                postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                        startDownloadPos, endDownloadPos,
+                        fileStartPos, fileEndPos);
+            }
         } finally {
             if (http != null) {
                 http.disconnect();
@@ -180,6 +188,8 @@ public class BasicDownload implements INetwork {
                 writeFileLength += offset;
                 startDownloadPos += offset;
 
+                finalDownload = false;
+                request.setDownloadRetryCount(0);
                 postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
                         startDownloadPos, endDownloadPos,
                         writeFileLength, fileEndPos);
@@ -198,9 +208,12 @@ public class BasicDownload implements INetwork {
                 }
             }
         } catch (Exception e) {
-            postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                    startDownloadPos, endDownloadPos,
-                    fileStartPos, fileEndPos);
+            if (finalDownload) {
+                postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                        startDownloadPos, endDownloadPos,
+                        fileStartPos, fileEndPos);
+            }
+            result = false;
         } finally {
             if (threadfile != null) {
                 threadfile.close();

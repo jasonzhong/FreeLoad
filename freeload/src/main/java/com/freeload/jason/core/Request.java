@@ -61,8 +61,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /** download file receipt */
     private DownloadReceipt mDownloadReceipt = null;
 
-    /** download file retry */
-    private int mDownloadRetry = 3;
+    /** download file retry limite*/
+    private int mDownloadRetryLimite = 5;
+
+    /** download file retry count*/
+    private int mDownloadRetryCount = 0;
 
     private final static String fileSaveDir = Environment.getExternalStorageDirectory() + "/freeload/downloadfile";
 
@@ -85,12 +88,24 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         this.mFileFolder = parseFileFolder(fileFolder);
     }
 
-    public void setDownloadRetryTime(int retry) {
-        mDownloadRetry = retry;
+    public void setDownloadRetryCount(int limite) {
+        mDownloadRetryCount = limite;
     }
 
-    public int getDownloadRetryTime() {
-        return mDownloadRetry;
+    public void addDownloadRetryCount() {
+        ++mDownloadRetryCount;
+    }
+
+    public int getDownloadRetryCount() {
+        return mDownloadRetryCount;
+    }
+
+    public void setDownloadRetryLimiteCount(int limite) {
+        mDownloadRetryLimite = limite;
+    }
+
+    public int getDownloadRetryLimiteCount() {
+        return mDownloadRetryLimite;
     }
 
     public void setDownloadReceipt(DownloadReceipt downloadReceipt) {

@@ -123,6 +123,29 @@ public class RequestQueue {
     }
 
     /**
+     * remove a Request to the dispatch queue.
+     * @param request The request to service
+     * @return The passed-in request
+     */
+    public <T> Request<T> removeRequest(Request<T> request) {
+        synchronized (mCurrentRequests) {
+            mCurrentRequests.remove(request);
+        }
+
+        mDownloadQueue.remove(request);
+        return request;
+    }
+
+    /**
+     * query a Request to the dispatch queue.
+     * @param request The request to service
+     * @return The passed-in request
+     */
+    public <T> boolean queryRequest(Request<T> request) {
+        return mDownloadQueue.contains(request);
+    }
+
+    /**
      * Adds a Request to the dispatch queue.
      * @param request The request to service
      * @return The passed-in request
