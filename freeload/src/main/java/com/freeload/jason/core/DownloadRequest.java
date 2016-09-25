@@ -59,6 +59,34 @@ public class DownloadRequest extends Request<DownloadReceipt> {
         return this;
     }
 
+    public DownloadRequest setDownloadRetryLimiteCount(int limite) {
+        if (limite > 0) {
+            setRetryLimiteCount(limite);
+        }
+        return this;
+    }
+
+    public DownloadRequest setDownloadConnectTimeOut(int connectTimeOut) {
+        if (connectTimeOut > 0) {
+            setConnectTimeOut(connectTimeOut);
+        }
+        return this;
+    }
+
+    public DownloadRequest setDownloadReadTimeOut(int readTimeOut) {
+        if (readTimeOut > 0) {
+            setReadTimeOut(readTimeOut);
+        }
+        return this;
+    }
+
+    public DownloadRequest setDownloadContainerSize(int containerSize) {
+        if (containerSize > 0) {
+            setContainerSize(containerSize);
+        }
+        return this;
+    }
+
     public void cancel() {
         super.cancel();
     }

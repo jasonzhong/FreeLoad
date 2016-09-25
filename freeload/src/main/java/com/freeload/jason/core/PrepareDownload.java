@@ -18,13 +18,13 @@ public class PrepareDownload implements Prepare {
 
     @Override
     public boolean preparePerform(Request<?> request, ResponseDelivery delivery) {
-        postResponse(delivery, request, DownloadReceipt.STATE.GETSIZE);
+        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.GETSIZE);
         long downloadFileSize = getFileSize(request);
         if (downloadFileSize <= 0) {
-            postResponse(delivery, request, DownloadReceipt.STATE.FAILED_GETSIZE);
+            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GETSIZE);
             return false;
         }
-        postPepareResponse(delivery, request, DownloadReceipt.STATE.GETSIZE, downloadFileSize);
+        ResponseUtil.postPepareResponse(request, delivery, DownloadReceipt.STATE.GETSIZE, downloadFileSize);
         request.setFileSize(downloadFileSize);
 
         int nPos = request.getThreadPosition();
@@ -33,19 +33,19 @@ public class PrepareDownload implements Prepare {
             request.setDownloadReceipt(null);
         }
 
-        postResponse(delivery, request, DownloadReceipt.STATE.QUEST_PREPARE);
+        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.QUEST_PREPARE);
         boolean bParse = parseStoragePages(request);
         if (!bParse) {
-            postResponse(delivery, request, DownloadReceipt.STATE.FAILED_QUEST_PREPARE);
+            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_QUEST_PREPARE);
         }
 
-        postResponse(delivery, request, DownloadReceipt.STATE.CREATEFILE);
+        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CREATEFILE);
         boolean bCreate = createFile(request);
         if (!bCreate) {
-            postResponse(delivery, request, DownloadReceipt.STATE.FAILED_CREATEFILE);
+            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_CREATEFILE);
             return false;
         }
-        postResponse(delivery, request, DownloadReceipt.STATE.PEPARE_FINISH);
+        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.PEPARE_FINISH);
 
         return true;
     }
@@ -101,7 +101,7 @@ public class PrepareDownload implements Prepare {
         int threadType = request.getThreadType();
         switch (threadType) {
             case DownloadThreadType.NORMAL:
-                bRes = setQuestDownloadSizeInfo(request, downloadFileSize, 1);
+                bRes = setSingleQuestDownloadSizeInfo(request, downloadFileSize);
                 break;
             case DownloadThreadType.DOUBLETHREAD:
                 bRes = setQuestDownloadSizeInfo(request, downloadFileSize, 2);
@@ -114,6 +114,22 @@ public class PrepareDownload implements Prepare {
                 break;
         }
         return bRes;
+    }
+
+    private boolean setSingleQuestDownloadSizeInfo(Request<?> request, long downloadFileSize) {
+        String fileName = request.getFileName();
+        fileName += "" + 1;
+        request.setFileName(fileName);
+
+        request.setDownloadStart(0);
+        request.setWriteFileStart(0);
+
+        request.setDownloadEnd(downloadFileSize);
+        request.setWriteFileEnd(downloadFileSize);
+
+        request.setDownloadFilePerSize(downloadFileSize);
+
+        return true;
     }
 
     private boolean setQuestDownloadSizeInfo(Request<?> request, long downloadFileSize, int division) {
@@ -148,29 +164,6 @@ public class PrepareDownload implements Prepare {
         }
 
         return true;
-    }
-
-    private void postResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = new DownloadReceipt();
-        downloadReceipt.setDownloadPosition(request.getThreadPosition());
-        downloadReceipt.setDownloadState(state);
-
-        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
-    }
-
-    private void postPepareResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state, long fileSize) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = new DownloadReceipt();
-        downloadReceipt.setDownloadPosition(request.getThreadPosition());
-        downloadReceipt.setDownloadState(state);
-        downloadReceipt.setDownloadedSize(fileSize);
-
-        delivery.postDownloadPepare(request, Response.success(downloadReceipt));
     }
 
     private boolean createFile(Request<?> request) {

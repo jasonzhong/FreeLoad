@@ -12,7 +12,7 @@ public class EndingDownload implements IEnding {
 
     @Override
     public boolean endingPerform(Request<?> request, ResponseDelivery delivery) {
-        postResponse(delivery, request, DownloadReceipt.STATE.START_COMBIN_FILE, null);
+        ResponseUtil.postFileResponse(request, delivery, DownloadReceipt.STATE.START_COMBIN_FILE, null);
 
         int size = 0;
         switch (request.getThreadType()) {
@@ -42,11 +42,11 @@ public class EndingDownload implements IEnding {
         }
 
         if (!saveFile.exists()) {
-            postResponse(delivery, request, DownloadReceipt.STATE.FAILED_COMBIN_FILE, saveFile.getPath());
+            ResponseUtil.postFileResponse(request, delivery, DownloadReceipt.STATE.FAILED_COMBIN_FILE, saveFile.getPath());
             return false;
         }
 
-        postResponse(delivery, request, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE, saveFile.getPath());
+        ResponseUtil.postFileResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_COMBIN_FILE, saveFile.getPath());
         return true;
     }
 
@@ -116,17 +116,5 @@ public class EndingDownload implements IEnding {
             }
         }
         return result;
-    }
-
-    private void postResponse(ResponseDelivery delivery, Request<?> request, DownloadReceipt.STATE state, String filePath) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = new DownloadReceipt();
-        downloadReceipt.setDownloadPosition(request.getThreadPosition());
-        downloadReceipt.setDownloadFilePath(filePath);
-        downloadReceipt.setDownloadState(state);
-
-        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 }

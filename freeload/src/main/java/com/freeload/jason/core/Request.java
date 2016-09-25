@@ -62,10 +62,25 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private DownloadReceipt mDownloadReceipt = null;
 
     /** download file retry limite*/
-    private int mDownloadRetryLimite = 5;
+    private int mDownloadRetryLimite = RETRYLIMITE;
 
     /** download file retry count*/
     private int mDownloadRetryCount = 0;
+
+    /** http default set */
+    private final static int RETRYLIMITE = 90;
+    private final static int CONNECT_TIMEOUT = 5 * 1000;
+    private final static int READ_TIMEOUT = 5 * 1000;
+    private final static int CONTAINER_SIZE = 8 * 1024;
+
+    /** http connect timeout. */
+    private int mConnectTimeOut = CONNECT_TIMEOUT;
+
+    /** http read timeout. */
+    private int mReadTimeOut = READ_TIMEOUT;
+
+    /** http container size. */
+    private int mContainerSize = CONTAINER_SIZE;
 
     private final static String fileSaveDir = Environment.getExternalStorageDirectory() + "/freeload/downloadfile";
 
@@ -88,24 +103,48 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         this.mFileFolder = parseFileFolder(fileFolder);
     }
 
-    public void setDownloadRetryCount(int limite) {
+    public void setRetryCount(int limite) {
         mDownloadRetryCount = limite;
     }
 
-    public void addDownloadRetryCount() {
+    public void addRetryCount() {
         ++mDownloadRetryCount;
     }
 
-    public int getDownloadRetryCount() {
+    public int getRetryCount() {
         return mDownloadRetryCount;
     }
 
-    public void setDownloadRetryLimiteCount(int limite) {
+    public void setRetryLimiteCount(int limite) {
         mDownloadRetryLimite = limite;
     }
 
-    public int getDownloadRetryLimiteCount() {
+    public int getRetryLimiteCount() {
         return mDownloadRetryLimite;
+    }
+
+    public void setConnectTimeOut(int connectTimeOut) {
+        mConnectTimeOut = connectTimeOut;
+    }
+
+    public int getConnectTimeOut() {
+        return mConnectTimeOut;
+    }
+
+    public void setReadTimeOut(int readTimeOut) {
+        mReadTimeOut = readTimeOut;
+    }
+
+    public int getReadTimeOut() {
+        return mReadTimeOut;
+    }
+
+    public void setContainerSize(int containerSize) {
+        mContainerSize = containerSize;
+    }
+
+    public int getContainerSize() {
+        return mContainerSize;
     }
 
     public void setDownloadReceipt(DownloadReceipt downloadReceipt) {

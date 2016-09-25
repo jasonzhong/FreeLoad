@@ -62,10 +62,22 @@ public class DownloadDispatcher extends Thread {
                 continue;
             }
 
+            INetwork network = null;
+            switch (request.getThreadType()) {
+                case DownloadThreadType.NORMAL:
+                    network = new SingleDownload();
+                    break;
+                case DownloadThreadType.DOUBLETHREAD:
+                    network = mDownload;
+                default:
+                    network = new SingleDownload();
+                    break;
+            }
+
             boolean downloadRetry = false;
-            boolean download = mDownload.performRequest(request, mDelivery);
+            boolean download = network.performRequest(request, mDelivery);
             if (!download) {
-                while (request.getDownloadRetryCount() < request.getDownloadRetryLimiteCount()) {
+                while (request.getRetryCount() < request.getRetryLimiteCount()) {
                     if (request.isCanceled()) {
                         request.finish();
                         break;
@@ -77,14 +89,14 @@ public class DownloadDispatcher extends Thread {
                         e.printStackTrace();
                     }
 
-                    request.addDownloadRetryCount();
+                    request.addRetryCount();
 
                     boolean finalDownload = false;
-                    if (request.getDownloadRetryCount() == request.getDownloadRetryLimiteCount()) {
+                    if (request.getRetryCount() == request.getRetryLimiteCount()) {
                         finalDownload = true;
                     }
 
-                    downloadRetry = mDownload.retryPerformRequest(request, mDelivery, finalDownload);
+                    downloadRetry = network.retryPerformRequest(request, mDelivery, finalDownload);
                     if (downloadRetry) {
                         break;
                     }
@@ -92,35 +104,11 @@ public class DownloadDispatcher extends Thread {
             }
 
             if (!downloadRetry && !download) {
-                postResponse(request, mDelivery, DownloadReceipt.STATE.CANCEL,
+                ResponseUtil.postDownloadResponse(request, mDelivery, DownloadReceipt.STATE.CANCEL,
                         0, 0, 0, 0);
             }
             request.finish();
         }
-    }
-
-    private void postResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
-                              long downLoadFileSize, long downloadLength,
-                              long writeFileSize, long writeFileLength) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
-                downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
-        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
-    }
-
-    private DownloadReceipt getDownloadReceipt(Request<?> request, DownloadReceipt.STATE state,
-                                               long downLoadFileSize, long downloadLength,
-                                               long writeFileSize, long writeFileLength) {
-        DownloadReceipt downloadReceipt = new DownloadReceipt();
-        downloadReceipt.setDownloadPosition(request.getThreadPosition());
-        downloadReceipt.setDownloadState(state);
-        downloadReceipt.setDownloadedSize(downLoadFileSize);
-        downloadReceipt.setTotalDownloadSize(downloadLength);
-        downloadReceipt.setWriteFileSize(writeFileSize);
-        downloadReceipt.setWriteFileTotalSize(writeFileLength);
-        return downloadReceipt;
     }
 
     /**

@@ -10,10 +10,6 @@ import java.net.URL;
 
 public class BasicDownload implements INetwork {
 
-    /** connect to get downloadfile head timeout count. */
-    private final static int CONNECT_TIMEOUT = 5 * 1000;
-    private final static int CONTAINER_SIZE = 8 * 1024;
-
     @Override
     public void performRequest(Request<?> request) {
         performRequest(request, null);
@@ -28,7 +24,7 @@ public class BasicDownload implements INetwork {
         long fileStartPos = request.getWriteFileStart();
         long fileEndPos = request.getWriteFileEnd();
 
-        postResponse(request, delivery, DownloadReceipt.STATE.START,
+        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.START,
                 startDownloadPos, endDownloadPos,
                 fileStartPos, fileEndPos);
 
@@ -52,8 +48,8 @@ public class BasicDownload implements INetwork {
             URL downloadUrl = new URL(request.getUrl());
 
             http = (HttpURLConnection) downloadUrl.openConnection();
-            http.setConnectTimeout(CONNECT_TIMEOUT);
-            http.setReadTimeout(1000);
+            http.setConnectTimeout(request.getConnectTimeOut());
+            http.setReadTimeout(request.getReadTimeOut());
             http.setRequestProperty("Range", "bytes=" + startDownloadPos + "-"+ endDownloadPos);//设置获取实体数据的范围
 
             int exception = http.getResponseCode();
@@ -67,7 +63,7 @@ public class BasicDownload implements INetwork {
                 case 303:
                 case 307:
                     if (finalDownload) {
-                        postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
                                 startDownloadPos, endDownloadPos,
                                 fileStartPos, fileEndPos);
                     }
@@ -76,14 +72,14 @@ public class BasicDownload implements INetwork {
                 case 500:
                 case 503:
                     if (finalDownload) {
-                        postResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT,
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT,
                                 startDownloadPos, endDownloadPos,
                                 fileStartPos, fileEndPos);
                     }
                     break;
                 default:
                     if (finalDownload) {
-                        postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
                                 startDownloadPos, endDownloadPos,
                                 fileStartPos, fileEndPos);
                     }
@@ -92,7 +88,7 @@ public class BasicDownload implements INetwork {
 
         } catch (Exception e) {
             if (finalDownload) {
-                postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
                         startDownloadPos, endDownloadPos,
                         fileStartPos, fileEndPos);
             }
@@ -130,7 +126,7 @@ public class BasicDownload implements INetwork {
 
         InputStream inStream = null;
 
-        byte[] buffer = new byte[CONTAINER_SIZE];
+        byte[] buffer = new byte[request.getContainerSize()];
 
         int offset = 0;
         long fileStartPos = request.getWriteFileStart();
@@ -150,10 +146,10 @@ public class BasicDownload implements INetwork {
             while (true) {
 
                 try {
-                    offset = inStream.read(buffer, 0, CONTAINER_SIZE);
+                    offset = inStream.read(buffer, 0, request.getContainerSize());
                 } catch (IOException io) {
                     if (finalDownload) {
-                        postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
                                 startDownloadPos, endDownloadPos,
                                 writeFileLength, fileEndPos);
                     }
@@ -162,7 +158,7 @@ public class BasicDownload implements INetwork {
                 }
 
                 if (request.isCanceled()) {
-                    postResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
+                    ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
                             startDownloadPos, endDownloadPos,
                             writeFileLength, fileEndPos);
                     break;
@@ -171,13 +167,13 @@ public class BasicDownload implements INetwork {
                 if (offset <= -1) {
                     if (writeFileLength < fileEndPos) {
                         if (finalDownload) {
-                            postResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
+                            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
                                     startDownloadPos, endDownloadPos,
                                     writeFileLength, fileEndPos);
                         }
                         result = false;
                     } else {
-                        postResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
                                 startDownloadPos, endDownloadPos,
                                 writeFileLength, fileEndPos);
                     }
@@ -189,8 +185,8 @@ public class BasicDownload implements INetwork {
                 startDownloadPos += offset;
 
                 finalDownload = false;
-                request.setDownloadRetryCount(0);
-                postProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
+                request.setRetryCount(0);
+                ResponseUtil.postDownloadProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
                         startDownloadPos, endDownloadPos,
                         writeFileLength, fileEndPos);
 
@@ -201,7 +197,7 @@ public class BasicDownload implements INetwork {
                 request.setWriteFileEnd(fileEndPos);
 
                 if (request.isCanceled()) {
-                    postResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
+                    ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
                             startDownloadPos, endDownloadPos,
                             writeFileLength, fileEndPos);
                     break;
@@ -209,7 +205,7 @@ public class BasicDownload implements INetwork {
             }
         } catch (Exception e) {
             if (finalDownload) {
-                postResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
+                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
                         startDownloadPos, endDownloadPos,
                         fileStartPos, fileEndPos);
             }
@@ -226,40 +222,5 @@ public class BasicDownload implements INetwork {
         }
 
         return result;
-    }
-
-    private void postResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
-                              long downLoadFileSize, long downloadLength,
-                              long writeFileSize, long writeFileLength) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
-                downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
-        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
-    }
-
-    private void postProgress(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
-                              long downLoadFileSize, long downloadLength,
-                              long writeFileSize, long writeFileLength) {
-        if (delivery == null) {
-            return;
-        }
-        DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
-                downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
-        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
-    }
-
-    private DownloadReceipt getDownloadReceipt(Request<?> request, DownloadReceipt.STATE state,
-                                               long downLoadFileSize, long downloadLength,
-                                               long writeFileSize, long writeFileLength) {
-        DownloadReceipt downloadReceipt = new DownloadReceipt();
-        downloadReceipt.setDownloadPosition(request.getThreadPosition());
-        downloadReceipt.setDownloadState(state);
-        downloadReceipt.setDownloadedSize(downLoadFileSize);
-        downloadReceipt.setTotalDownloadSize(downloadLength);
-        downloadReceipt.setWriteFileSize(writeFileSize);
-        downloadReceipt.setWriteFileTotalSize(writeFileLength);
-        return downloadReceipt;
     }
 }
