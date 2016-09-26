@@ -3,7 +3,7 @@ package com.freeload.jason.toolbox;
 import com.freeload.jason.core.DownloadRequest;
 import com.freeload.jason.core.DownloadThreadType;
 import com.freeload.jason.core.RequestQueue;
-import com.freeload.jason.core.Response;
+import com.freeload.jason.core.response.Response;
 import com.freeload.jason.core.IReceipt;
 
 import java.util.ArrayList;

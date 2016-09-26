@@ -1,5 +1,8 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.download;
 
+import com.freeload.jason.core.Request;
+import com.freeload.jason.core.response.ResponseDelivery;
+import com.freeload.jason.core.response.ResponseUtil;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.IOException;
@@ -10,12 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SingleDownload implements INetwork {
-
-    @Override
-    public void performRequest(Request<?> request) {
-        performRequest(request, null);
-    }
-
     @Override
     public boolean performRequest(Request<?> request, ResponseDelivery delivery) {
         ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.START);
@@ -25,11 +22,46 @@ public class SingleDownload implements INetwork {
             return false;
         }
 
-        boolean transferCore = downloadCore(request, delivery, false);
-        if (!transferCore) {
+        boolean downloadPerform = downloadCore(request, delivery, false);
+        if (downloadPerform) {
+            return true;
+        }
+
+        boolean downloadRetry = retryPerform(request, delivery);
+        if (!downloadRetry && !downloadPerform) {
+            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL);
             return false;
         }
         return true;
+    }
+
+    private boolean retryPerform(Request<?> request, ResponseDelivery delivery) {
+        boolean downloadRetry = false;
+        while (request.getRetryCount() < request.getRetryLimiteCount()) {
+            if (request.isCanceled()) {
+                request.finish();
+                break;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            request.addRetryCount();
+
+            boolean finalDownload = false;
+            if (request.getRetryCount() == request.getRetryLimiteCount()) {
+                finalDownload = true;
+            }
+
+            downloadRetry = retryPerformRequest(request, delivery, finalDownload);
+            if (downloadRetry) {
+                break;
+            }
+        }
+        return downloadRetry;
     }
 
     @Override
@@ -99,9 +131,9 @@ public class SingleDownload implements INetwork {
                 case HttpURLConnection.HTTP_PARTIAL :
                     transferSucc = transferData(request, delivery, http, finalDownload);
                     break;
-                case 301:
-                case 302:
-                case 303:
+                case HttpURLConnection.HTTP_MOVED_PERM:
+                case HttpURLConnection.HTTP_MOVED_TEMP:
+                case HttpURLConnection.HTTP_SEE_OTHER:
                 case 307:
                     if (finalDownload) {
                         ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG);

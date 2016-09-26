@@ -1,5 +1,6 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.response;
 
+import com.freeload.jason.core.Request;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 public class ResponseUtil {

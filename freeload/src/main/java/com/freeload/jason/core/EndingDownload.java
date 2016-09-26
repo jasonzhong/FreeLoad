@@ -1,5 +1,7 @@
 package com.freeload.jason.core;
 
+import com.freeload.jason.core.response.ResponseDelivery;
+import com.freeload.jason.core.response.ResponseUtil;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.File;

@@ -2,7 +2,7 @@ package com.freeload.jason.toolbox;
 
 import com.freeload.jason.core.DownloadThreadType;
 import com.freeload.jason.core.IReceipt;
-import com.freeload.jason.core.Response;
+import com.freeload.jason.core.response.Response;
 
 public class EssentialInfo {
 

@@ -1,5 +1,8 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.download;
 
+import com.freeload.jason.core.Request;
+import com.freeload.jason.core.response.ResponseDelivery;
+import com.freeload.jason.core.response.ResponseUtil;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.IOException;
@@ -8,13 +11,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class BasicDownload implements INetwork {
-
-    @Override
-    public void performRequest(Request<?> request) {
-        performRequest(request, null);
-    }
-
+public class MulitDownload implements INetwork {
     @Override
     public boolean performRequest(Request<?> request, ResponseDelivery delivery) {
         boolean transferSucc = false;
@@ -28,8 +25,7 @@ public class BasicDownload implements INetwork {
                 startDownloadPos, endDownloadPos,
                 fileStartPos, fileEndPos);
 
-        if (endDownloadPos <= 0 ||
-                startDownloadPos > endDownloadPos) {
+        if (endDownloadPos <= 0 || startDownloadPos > endDownloadPos) {
             return transferSucc;
         }
 
@@ -58,9 +54,9 @@ public class BasicDownload implements INetwork {
                 case HttpURLConnection.HTTP_PARTIAL :
                     transferSucc = transferData(request, delivery, http, finalDownload);
                     break;
-                case 301:
-                case 302:
-                case 303:
+                case HttpURLConnection.HTTP_MOVED_PERM:
+                case HttpURLConnection.HTTP_MOVED_TEMP:
+                case HttpURLConnection.HTTP_SEE_OTHER:
                 case 307:
                     if (finalDownload) {
                         ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,

@@ -1,4 +1,6 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.response;
+
+import com.freeload.jason.core.Request;
 
 public interface ResponseDelivery {
     /**

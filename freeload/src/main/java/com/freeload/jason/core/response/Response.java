@@ -1,4 +1,4 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.response;
 
 public class Response<T> {
 

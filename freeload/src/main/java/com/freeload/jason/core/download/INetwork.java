@@ -1,8 +1,9 @@
-package com.freeload.jason.core;
+package com.freeload.jason.core.download;
+
+import com.freeload.jason.core.Request;
+import com.freeload.jason.core.response.ResponseDelivery;
 
 public interface INetwork {
-
-    public void performRequest(Request<?> request);
 
     public boolean performRequest(Request<?> request, ResponseDelivery delivery);
 

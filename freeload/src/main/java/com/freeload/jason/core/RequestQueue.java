@@ -3,6 +3,9 @@ package com.freeload.jason.core;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.freeload.jason.core.download.BasicDownload;
+import com.freeload.jason.core.response.ResponseDelivery;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -32,9 +35,6 @@ public class RequestQueue {
 
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
-    /** Download interface for performing requests. */
-    private final BasicDownload mDownload;
-
     /** The prepare interface for prepare download. */
     private final PrepareDownload mPrepare;
 
@@ -44,17 +44,16 @@ public class RequestQueue {
     /** IEnding download perform */
     private final EndingDownload mEnding;
 
-    public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload) {
-        this(basicDownload, prepareDownload, endingDownload, DEFAULT_DOWNLOAD_THREAD_POOL_SIZE, DEFAULT_FILE_THREAD_POOL_SIZE);
+    public RequestQueue(PrepareDownload prepareDownload, EndingDownload endingDownload) {
+        this(prepareDownload, endingDownload, DEFAULT_DOWNLOAD_THREAD_POOL_SIZE, DEFAULT_FILE_THREAD_POOL_SIZE);
     }
 
-    public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload, int threadPoolSize, int filePoolSize) {
-        this(basicDownload, prepareDownload, endingDownload, threadPoolSize, filePoolSize, new ExecutorDelivery(new Handler(Looper.getMainLooper())));
+    public RequestQueue(PrepareDownload prepareDownload, EndingDownload endingDownload, int threadPoolSize, int filePoolSize) {
+        this(prepareDownload, endingDownload, threadPoolSize, filePoolSize, new ExecutorDelivery(new Handler(Looper.getMainLooper())));
     }
 
-    public RequestQueue(BasicDownload basicDownload, PrepareDownload prepareDownload, EndingDownload endingDownload,
+    public RequestQueue(PrepareDownload prepareDownload, EndingDownload endingDownload,
                         int threadPoolSize, int filePoolSize, ResponseDelivery delivery) {
-        this.mDownload = basicDownload;
         this.mPrepare = prepareDownload;
         this.mEnding = endingDownload;
         this.mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
@@ -78,8 +77,7 @@ public class RequestQueue {
         // Create network dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mDownloadDispatchers.length; ++i) {
             DownloadDispatcher downloadDispatcher =
-                    new DownloadDispatcher(mDownloadQueue, mDownload,
-                            mPrepare, mDelivery);
+                    new DownloadDispatcher(mDownloadQueue, mPrepare, mDelivery);
             mDownloadDispatchers[i] = downloadDispatcher;
             downloadDispatcher.start();
         }

@@ -2,7 +2,11 @@ package com.freeload.jason.core;
 
 import android.os.Process;
 
-import com.freeload.jason.toolbox.DownloadReceipt;
+import com.freeload.jason.core.download.BasicDownload;
+import com.freeload.jason.core.download.INetwork;
+import com.freeload.jason.core.download.MulitDownload;
+import com.freeload.jason.core.download.SingleDownload;
+import com.freeload.jason.core.response.ResponseDelivery;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -13,9 +17,6 @@ public class DownloadDispatcher extends Thread {
     /** The queue of requests to service. */
     private final BlockingQueue<Request<?>> mQueue;
 
-    /** The download interface for processing requests. */
-    private final BasicDownload mDownload;
-
     /** The prepare interface for prepare download. */
     private final PrepareDownload mPrepare;
 
@@ -25,10 +26,9 @@ public class DownloadDispatcher extends Thread {
     /** Used for telling us to die. */
     private volatile boolean mQuit = false;
 
-    public DownloadDispatcher(BlockingQueue<Request<?>> queue, BasicDownload basicDownload,
-                              PrepareDownload prepareDownload, ResponseDelivery delivery) {
+    public DownloadDispatcher(BlockingQueue<Request<?>> queue, PrepareDownload prepareDownload,
+                              ResponseDelivery delivery) {
         this.mQueue = queue;
-        this.mDownload = basicDownload;
         this.mPrepare = prepareDownload;
         this.mDelivery = delivery;
     }
@@ -68,45 +68,13 @@ public class DownloadDispatcher extends Thread {
                     network = new SingleDownload();
                     break;
                 case DownloadThreadType.DOUBLETHREAD:
-                    network = mDownload;
+                    network = new MulitDownload();
                 default:
                     network = new SingleDownload();
                     break;
             }
 
-            boolean downloadRetry = false;
-            boolean download = network.performRequest(request, mDelivery);
-            if (!download) {
-                while (request.getRetryCount() < request.getRetryLimiteCount()) {
-                    if (request.isCanceled()) {
-                        request.finish();
-                        break;
-                    }
-
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    request.addRetryCount();
-
-                    boolean finalDownload = false;
-                    if (request.getRetryCount() == request.getRetryLimiteCount()) {
-                        finalDownload = true;
-                    }
-
-                    downloadRetry = network.retryPerformRequest(request, mDelivery, finalDownload);
-                    if (downloadRetry) {
-                        break;
-                    }
-                }
-            }
-
-            if (!downloadRetry && !download) {
-                ResponseUtil.postDownloadResponse(request, mDelivery, DownloadReceipt.STATE.CANCEL,
-                        0, 0, 0, 0);
-            }
+            network.performRequest(request, mDelivery);
             request.finish();
         }
     }

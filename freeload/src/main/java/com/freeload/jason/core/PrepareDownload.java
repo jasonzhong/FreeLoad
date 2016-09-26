@@ -2,6 +2,8 @@ package com.freeload.jason.core;
 
 import android.text.TextUtils;
 
+import com.freeload.jason.core.response.ResponseDelivery;
+import com.freeload.jason.core.response.ResponseUtil;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
 import java.io.File;
@@ -15,6 +17,7 @@ public class PrepareDownload implements Prepare {
 
     /** connect to get downloadfile head timeout count. */
     private final static int CONNECT_TIMEOUT = 5 * 1000;
+    private final static int READ_TIMEOUT = 10 * 1000;
 
     @Override
     public boolean preparePerform(Request<?> request, ResponseDelivery delivery) {
@@ -282,31 +285,30 @@ public class PrepareDownload implements Prepare {
         DownloadReceipt downloadReceipt = request.getDownloadReceipt();
         if (downloadReceipt != null) {
             fileSize = downloadReceipt.getDownloadTotalSize();
-        }
-
-        if (fileSize > 0) {
-            return fileSize;
+            if (fileSize > 0) {
+                return fileSize;
+            }
         }
 
         long downloadFileSize = 0;
         if (request.getDownloadFileSize() > 0) {
             fileSize = request.getDownloadFileSize();
+            if (fileSize > 0) {
+                return fileSize;
+            }
         }
 
-        if (fileSize > 0) {
-            return fileSize;
+        //HTTP HEAD
+        long contentLength = connectAndGetFileSizeByHead(request);
+        if (contentLength > 0) {
+            return contentLength;
         }
 
-        try {
-            downloadFileSize = connectAndGetFileSize(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        downloadFileSize = connectAndGetFileSize(request);
         return downloadFileSize;
     }
 
-    private long connectAndGetFileSize(Request<?> request) throws Exception {
+    private long connectAndGetFileSize(Request<?> request) {
         long lenght = 0;
 
         HttpURLConnection conn = null;
@@ -314,6 +316,7 @@ public class PrepareDownload implements Prepare {
             URL mUrl = new URL(request.getUrl());
             conn = (HttpURLConnection) mUrl.openConnection();
             conn.setConnectTimeout(CONNECT_TIMEOUT);
+            conn.setReadTimeout(READ_TIMEOUT);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept-Encoding", "identity");
             conn.setRequestProperty("Referer", request.getUrl());
@@ -325,6 +328,35 @@ public class PrepareDownload implements Prepare {
             if (responseCode == 200) {
                 lenght = conn.getContentLength();
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+
+        return lenght;
+    }
+
+    private long connectAndGetFileSizeByHead(Request<?> request) {
+        long lenght = 0;
+
+        HttpURLConnection conn = null;
+        try {
+            URL mUrl = new URL(request.getUrl());
+            conn = (HttpURLConnection) mUrl.openConnection();
+            conn.setConnectTimeout(CONNECT_TIMEOUT);
+            conn.setReadTimeout(READ_TIMEOUT);
+            conn.setRequestMethod("HEAD");
+            conn.connect();
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                lenght = conn.getContentLength();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         } finally {
             if (conn != null) {
                 conn.disconnect();

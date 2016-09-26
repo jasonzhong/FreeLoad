@@ -2,6 +2,9 @@ package com.freeload.jason.core;
 
 import android.os.Handler;
 
+import com.freeload.jason.core.response.Response;
+import com.freeload.jason.core.response.ResponseDelivery;
+
 import java.util.concurrent.Executor;
 
 public class ExecutorDelivery implements ResponseDelivery {
