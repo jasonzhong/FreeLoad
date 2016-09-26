@@ -5,89 +5,152 @@ import com.freeload.jason.core.response.ResponseDelivery;
 import com.freeload.jason.core.response.ResponseUtil;
 import com.freeload.jason.toolbox.DownloadReceipt;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public class BasicDownload implements INetwork {
+public class BasicDownload {
 
-    @Override
-    public boolean performRequest(Request<?> request, ResponseDelivery delivery) {
-        boolean transferSucc = false;
+    private static long mRangeStart = 0;
+    private static long mRangeEnd = 0;
+    private static int mRangeLength = 0;
 
-        long startDownloadPos = request.getDownloadStart();
-        long endDownloadPos = request.getDownloadEnd();
-        long fileStartPos = request.getWriteFileStart();
-        long fileEndPos = request.getWriteFileEnd();
-
-        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.START,
-                startDownloadPos, endDownloadPos,
-                fileStartPos, fileEndPos);
-
-        if (endDownloadPos <= 0 || startDownloadPos > endDownloadPos) {
-            return transferSucc;
+    public static void setDownloadRange(long start, long end) {
+        if (start >= end) {
+            return;
         }
 
-        transferSucc = downloadCore(request, delivery, startDownloadPos, endDownloadPos, fileStartPos, fileEndPos, false);
-        return transferSucc;
+        mRangeStart = start;
+        mRangeEnd = end;
+
+        mRangeLength = (int) (mRangeEnd - mRangeStart);
     }
 
-    private boolean downloadCore(Request<?> request, ResponseDelivery delivery,
-                                 long startDownloadPos, long endDownloadPos,
-                                 long fileStartPos, long fileEndPos,
-                                 boolean finalDownload) {
+    public static boolean performRequest(Request<?> request, ResponseDelivery delivery) {
+        byte[] downloadByte = downloadCore(request, delivery, false);
+        if (downloadByte != null && downloadByte.length == mRangeLength) {
+            return true;
+        }
 
-        boolean transferSucc = false;
+        boolean downloadRetry = retryPerform(request, delivery);
+        if (!downloadRetry) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean retryPerform(Request<?> request, ResponseDelivery delivery) {
+        while (request.getRetryCount() < request.getRetryLimiteCount()) {
+            if (request.isCanceled()) {
+                request.finish();
+                break;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            request.addRetryCount();
+
+            boolean finalDownload = false;
+            if (request.getRetryCount() == request.getRetryLimiteCount()) {
+                finalDownload = true;
+            }
+
+            byte[] downloadByte = downloadCore(request, delivery, finalDownload);
+            if (downloadByte != null && downloadByte.length == mRangeLength) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static URL createUrl(Request<?> request) {
+        URL downloadUrl = null;
+        try {
+            downloadUrl = new URL(request.getUrl());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return downloadUrl;
+    }
+
+    private static long getRangeStart(Request<?> request) {
+        long rangeStart = mRangeStart;
+        if (mRangeStart <= 0) {
+            rangeStart = request.getWriteFileStart();
+        }
+        return rangeStart;
+    }
+
+    private static long getRangeEnd(Request<?> request) {
+        long rangeEnd = mRangeEnd;
+        if (mRangeEnd <= 0) {
+            rangeEnd = request.getWriteFileEnd();
+        }
+        return rangeEnd;
+    }
+
+    private static byte[] downloadCore(Request<?> request, ResponseDelivery delivery, boolean finalDownload) {
+        if (request == null) {
+            return null;
+        }
+
+        URL downloadUrl = createUrl(request);
+        if (downloadUrl == null) {
+            return null;
+        }
+
+        byte[] downloadByte = null;
+
         HttpURLConnection http = null;
         try {
-            URL downloadUrl = new URL(request.getUrl());
+            long startRangePos = getRangeStart(request);
+            long endRangePos = getRangeEnd(request);
 
             http = (HttpURLConnection) downloadUrl.openConnection();
             http.setConnectTimeout(request.getConnectTimeOut());
             http.setReadTimeout(request.getReadTimeOut());
-            http.setRequestProperty("Range", "bytes=" + startDownloadPos + "-"+ endDownloadPos);//设置获取实体数据的范围
+            http.setRequestProperty("Range", "bytes=" + startRangePos + "-"+ endRangePos);//设置获取实体数据的范围
 
             int exception = http.getResponseCode();
             switch (exception) {
                 case HttpURLConnection.HTTP_OK :
                 case HttpURLConnection.HTTP_PARTIAL :
-                    transferSucc = transferData(request, delivery, http, finalDownload);
+                    downloadByte = transferData(request, delivery, http, finalDownload);
                     break;
                 case HttpURLConnection.HTTP_MOVED_PERM:
                 case HttpURLConnection.HTTP_MOVED_TEMP:
                 case HttpURLConnection.HTTP_SEE_OTHER:
                 case 307:
                     if (finalDownload) {
-                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                                startDownloadPos, endDownloadPos,
-                                fileStartPos, fileEndPos);
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG);
                     }
                     break;
                 case 416:
                 case 500:
                 case 503:
                     if (finalDownload) {
-                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT,
-                                startDownloadPos, endDownloadPos,
-                                fileStartPos, fileEndPos);
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.TIMEOUT);
                     }
                     break;
                 default:
                     if (finalDownload) {
-                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                                startDownloadPos, endDownloadPos,
-                                fileStartPos, fileEndPos);
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG);
                     }
                     break;
             }
 
         } catch (Exception e) {
             if (finalDownload) {
-                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                        startDownloadPos, endDownloadPos,
-                        fileStartPos, fileEndPos);
+                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG);
             }
         } finally {
             if (http != null) {
@@ -95,42 +158,26 @@ public class BasicDownload implements INetwork {
             }
         }
 
-        return transferSucc;
+        return downloadByte;
     }
 
-    @Override
-    public boolean retryPerformRequest(Request<?> request, ResponseDelivery delivery, boolean finalDownload) {
-        boolean transferSucc = false;
-
-        long startDownloadPos = request.getDownloadStart();
-        long endDownloadPos = request.getDownloadEnd();
-        long fileStartPos = request.getWriteFileStart();
-        long fileEndPos = request.getWriteFileEnd();
-
-        if (endDownloadPos <= 0 ||
-                startDownloadPos > endDownloadPos) {
-            return transferSucc;
-        }
-
-        transferSucc = downloadCore(request, delivery, startDownloadPos, endDownloadPos, fileStartPos, fileEndPos, finalDownload);
-
-        return transferSucc;
+    private static byte[] append(byte[] org, byte[] to) {
+        byte[] newByte = new byte[org.length + to.length];
+        System.arraycopy(org, 0, newByte, 0, org.length);
+        System.arraycopy(to, 0, newByte, org.length, to.length);
+        return newByte;
     }
 
-    private boolean transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http
-            , boolean finalDownload) throws IOException {
-        boolean result = true;
-
+    private static byte[] transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http,
+                                        boolean finalDownload) throws IOException {
         InputStream inStream = null;
 
-        byte[] buffer = new byte[request.getContainerSize()];
+        byte[] downloadByte = new byte[0];
+        byte[] downloadBuffer = new byte[request.getContainerSize()];
 
         int offset = 0;
         long fileStartPos = request.getWriteFileStart();
         long fileEndPos = request.getWriteFileEnd();
-
-        long startDownloadPos = request.getDownloadStart();
-        long endDownloadPos = request.getDownloadEnd();
 
         long writeFileLength = fileStartPos;
 
@@ -141,72 +188,43 @@ public class BasicDownload implements INetwork {
             inStream = http.getInputStream();
 
             while (true) {
-
                 try {
-                    offset = inStream.read(buffer, 0, request.getContainerSize());
+                    offset = inStream.read(downloadBuffer, 0, request.getContainerSize());
                 } catch (IOException io) {
                     if (finalDownload) {
-                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
-                                startDownloadPos, endDownloadPos,
-                                writeFileLength, fileEndPos);
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM);
                     }
-                    result = false;
                     break;
                 }
 
                 if (request.isCanceled()) {
-                    ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
-                            startDownloadPos, endDownloadPos,
-                            writeFileLength, fileEndPos);
+                    ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL);
                     break;
                 }
 
                 if (offset <= -1) {
                     if (writeFileLength < fileEndPos) {
                         if (finalDownload) {
-                            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM,
-                                    startDownloadPos, endDownloadPos,
-                                    writeFileLength, fileEndPos);
+                            ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.FAILED_GET_STREAM);
                         }
-                        result = false;
                     } else {
-                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD,
-                                startDownloadPos, endDownloadPos,
-                                writeFileLength, fileEndPos);
+                        ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.SUCCESS_DOWNLOAD);
                     }
                     break;
                 }
 
-                threadfile.write(buffer, 0, offset);
-                writeFileLength += offset;
-                startDownloadPos += offset;
-
                 finalDownload = false;
                 request.setRetryCount(0);
-                ResponseUtil.postDownloadProgress(request, delivery, DownloadReceipt.STATE.DOWNLOAD,
-                        startDownloadPos, endDownloadPos,
-                        writeFileLength, fileEndPos);
-
-                request.setDownloadStart(startDownloadPos + writeFileLength);
-                request.setDownloadEnd(endDownloadPos);
-
-                request.setWriteFileStart(writeFileLength);
-                request.setWriteFileEnd(fileEndPos);
+                downloadByte = append(downloadByte, downloadBuffer);
 
                 if (request.isCanceled()) {
-                    ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL,
-                            startDownloadPos, endDownloadPos,
-                            writeFileLength, fileEndPos);
                     break;
                 }
             }
         } catch (Exception e) {
             if (finalDownload) {
-                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG,
-                        startDownloadPos, endDownloadPos,
-                        fileStartPos, fileEndPos);
+                ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CONNWRONG);
             }
-            result = false;
         } finally {
             if (threadfile != null) {
                 threadfile.close();
@@ -218,6 +236,6 @@ public class BasicDownload implements INetwork {
             }
         }
 
-        return result;
+        return downloadByte;
     }
 }

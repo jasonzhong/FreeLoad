@@ -13,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SingleDownload implements INetwork {
+    private static int RANGELENGTH = 1024 * 1024 * 10;
+
     @Override
     public boolean performRequest(Request<?> request, ResponseDelivery delivery) {
         ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.START);
@@ -22,7 +24,26 @@ public class SingleDownload implements INetwork {
             return false;
         }
 
-        boolean downloadPerform = downloadCore(request, delivery, false);
+        long rangeStart = request.getWriteFileStart();
+        long rangeEnd = request.getWriteFileEnd();
+
+        while (true) {
+            if ((rangeStart + RANGELENGTH) < rangeEnd) {
+                BasicDownload.setDownloadRange(rangeStart, rangeStart + RANGELENGTH);
+            } else {
+                BasicDownload.setDownloadRange(rangeStart, rangeEnd);
+            }
+
+            if (BasicDownload.performRequest(request, delivery)) {
+                rangeStart += RANGELENGTH;
+            }
+
+            if (rangeStart >= rangeEnd) {
+                break;
+            }
+        }
+
+        /*boolean downloadPerform = downloadCore(request, delivery, false);
         if (downloadPerform) {
             return true;
         }
@@ -31,7 +52,7 @@ public class SingleDownload implements INetwork {
         if (!downloadRetry && !downloadPerform) {
             ResponseUtil.postDownloadResponse(request, delivery, DownloadReceipt.STATE.CANCEL);
             return false;
-        }
+        }*/
         return true;
     }
 
@@ -166,8 +187,8 @@ public class SingleDownload implements INetwork {
         return transferSucc;
     }
 
-    private boolean transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http
-            , boolean finalDownload) throws IOException {
+    private boolean transferData(Request<?> request, ResponseDelivery delivery, HttpURLConnection http,
+                                 boolean finalDownload) throws IOException {
         boolean result = true;
 
         InputStream inStream = null;

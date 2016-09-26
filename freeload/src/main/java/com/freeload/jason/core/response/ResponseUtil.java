@@ -23,25 +23,36 @@ public class ResponseUtil {
             return;
         }
 
-        long startDownloadPos = request.getDownloadStart();
-        long endDownloadPos = request.getDownloadEnd();
+        long startPos = request.getDownloadStart();
+        long totalLength = request.getDownloadEnd();
         long startFilePos = request.getWriteFileStart();
-        long endFilePos = request.getWriteFileEnd();
+        long totalFileLength = request.getWriteFileEnd();
 
         DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
-                startDownloadPos, endDownloadPos, startFilePos, endFilePos);
+                startPos, totalLength, startFilePos, totalFileLength);
         delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 
     public static void postDownloadResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
-                                            long downLoadFileSize, long downloadLength,
-                                            long writeFileSize, long writeFileLength) {
+                                            long startPos, long totalLength) {
         if (delivery == null) {
             return;
         }
 
         DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
-                downLoadFileSize, downloadLength, writeFileSize, writeFileLength);
+                startPos, totalLength, startPos, totalLength);
+        delivery.postDownloadProgress(request, Response.success(downloadReceipt));
+    }
+
+    public static void postDownloadResponse(Request<?> request, ResponseDelivery delivery, DownloadReceipt.STATE state,
+                                            long startPos, long totalLength,
+                                            long startFilePos, long totalFileLength) {
+        if (delivery == null) {
+            return;
+        }
+
+        DownloadReceipt downloadReceipt = getDownloadReceipt(request, state,
+                startPos, totalLength, startFilePos, totalFileLength);
         delivery.postDownloadProgress(request, Response.success(downloadReceipt));
     }
 
